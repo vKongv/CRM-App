@@ -1,16 +1,28 @@
 <?php
 namespace app\controllers;
 use yii\web\Controller;
+use app\models\customer\CustomerRecord;
+use app\models\customer\PhoneRecord;
+
 class CustomersController extends Controller{
   public function actionIndex(){
-    $records = $this->getRecordsAccordingToQuery();
+    $records = $this->findRecordsByQuery();
     $this->render('index', compact('records'));
   }
 
   public function actionAdd(){
     $customer = new CustomerRecord;
     $phone = new PhoneRecord;
-    return $this->render('add', compact('customer','phone'));
+
+    if($this->load($customer, $phone, $_POST)){
+      $this->store($this->makeCustomer($customer, $phone));
+      return $this->redirect('/customers');
+    }
+    return $this->render('add', [ 'customer' => $customer, 'phone' => $phone]);
+  }
+
+  pubic function actionQuery(){
+    return $this->render('query');
   }
 
   private function store(Customer $customer)
@@ -30,6 +42,11 @@ class CustomersController extends Controller{
     }
   }
 
+  /**
+   * Used to create a Customer object
+   * @param CustomerRecord $customer_record
+   *
+  **/
   private function makeCustomer(CustomerRecord $customer_record, PhoneRecord $phone_record){
     $name = $customer_record->name;
     $birth_date = new \DateTime($customer_record->birth_date);
@@ -39,5 +56,41 @@ class CustomersController extends Controller{
     $customer->phones[] = new Phone($phone_record->number);
 
     return $customer;
+  }
+
+  private function load(CustomerRecord $customer, PhoneRecord $phone, array $post){
+    return $customer->load($post)
+    and $phone->load($post)
+    and $customer->validate()
+    and $phone->validate(['number']);
+  }
+
+  private function findRecordsByQuery(){
+    $number = Yii::$app->request->get('phone_number');
+    $records = $this->getRecordsByPhoneNumber($number);
+    $dataProvider = $this->wrapIntoDataProvider($records);
+    return $dataProvider;
+  }
+
+  private function wrapIntoDataProvider($data){
+    return new ArrayDataProvider(
+      [
+        'allModels' => $data,
+        'pagination' => false
+      ]
+    );
+  }
+
+  private function getRecordsByPhoneNumber($number){
+    $phone_record = PhoneRecord::findOne(['number' => $number]);
+    if(!phone_record)
+      return [];
+
+    $customer_record = CustomerRecord::findOne($phone_record->customer_id);
+
+    if(!customer_record)
+      return [];
+
+    return [$this->makeCustomer($customer_record, $phone_record)];
   }
 }
