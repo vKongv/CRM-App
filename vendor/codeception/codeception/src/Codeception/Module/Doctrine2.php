@@ -1,12 +1,11 @@
 <?php
 namespace Codeception\Module;
 
-use Codeception\Lib\Interfaces\DataMapper;
 use Codeception\Module as CodeceptionModule;
 use Codeception\Exception\ModuleConfigException;
 use Codeception\Lib\Interfaces\DependsOnModule;
 use Codeception\Lib\Interfaces\DoctrineProvider;
-use Codeception\TestInterface;
+use Codeception\TestCase;
 use Doctrine\ORM\EntityManager;
 use Codeception\Util\Stub;
 
@@ -15,14 +14,14 @@ use Codeception\Util\Stub;
  * Doctrine2 uses EntityManager to perform all database operations.
  *
  * When using with Zend Framework 2 or Symfony2 Doctrine connection is automatically retrieved from Service Locator.
- * In this case you should include either **Symfony** or **ZF2** module and specify it as dependent for Doctrine:
+ * In this case you should include either **Symfony2** or **ZF2** module and specify it as dependent for Doctrine:
  *
  * ```
  * modules:
  *     enabled:
- *         - Symfony
+ *         - Symfony2
  *         - Doctrine2:
- *             depends: Symfony
+ *             depends: Symfony2
  * ```
  *
  * If you don't use any of frameworks above, you should specify a callback function to receive entity manager:
@@ -65,7 +64,7 @@ use Codeception\Util\Stub;
  * * `em` - Entity Manager
  */
 
-class Doctrine2 extends CodeceptionModule implements DependsOnModule, DataMapper
+class Doctrine2 extends CodeceptionModule implements DependsOnModule
 {
 
     protected $config = [
@@ -82,12 +81,12 @@ modules:
         - Doctrine2:
             connection_callback: [My\ConnectionClass, getEntityManager]
 
-Or set a dependent module, which can be either Symfony or ZF2 to get EM from service locator:
+Or set a dependent module, which can be either Symfony2 or ZF2 to get EM from service locator:
 
 modules:
     enabled:
         - Doctrine2:
-            depends: Symfony
+            depends: Symfony2
 EOF;
 
     /**
@@ -118,7 +117,7 @@ EOF;
         $this->retrieveEntityManager();
     }
 
-    public function _before(TestInterface $test)
+    public function _before(TestCase $test)
     {
         $this->retrieveEntityManager();
         if ($this->config['cleanup']) {
@@ -142,7 +141,7 @@ EOF;
                 "EntityManager can't be obtained.\n \n"
                 . "Please specify either `connection_callback` config option\n"
                 . "with callable which will return instance of EntityManager or\n"
-                . "pass a dependent module which are Symfony or ZF2\n"
+                . "pass a dependent module which are Symfony2 or ZF2\n"
                 . "to connect to Doctrine using Dependency Injection Container"
             );
         }
@@ -159,7 +158,7 @@ EOF;
         $this->em->getConnection()->connect();
     }
 
-    public function _after(TestInterface $test)
+    public function _after(TestCase $test)
     {
         if (!$this->em instanceof \Doctrine\ORM\EntityManager) {
             return;
@@ -213,6 +212,7 @@ EOF;
      */
     public function persistEntity($obj, $values = [])
     {
+
         if ($values) {
             $reflectedObj = new \ReflectionClass($obj);
             foreach ($values as $key => $val) {
@@ -241,8 +241,7 @@ EOF;
      *
      * ```
      *
-     * This creates a stub class for Entity\User repository with redefined method findByUsername,
-     * which will always return the NULL value.
+     * This creates a stub class for Entity\User repository with redefined method findByUsername, which will always return the NULL value.
      *
      * @param $classname
      * @param array $methods
@@ -259,8 +258,7 @@ EOF;
         }
 
         $mock = Stub::make(
-            $customRepositoryClassName,
-            array_merge(
+            $customRepositoryClassName, array_merge(
                 [
                     '_entityName' => $metadata->name,
                     '_em' => $em,
@@ -276,10 +274,7 @@ EOF;
             $property->setAccessible(true);
             $property->setValue($em, array_merge($property->getValue($em), [$classname => $mock]));
         } else {
-            $this->debugSection(
-                'Warning',
-                'Repository can\'t be mocked, the EventManager class doesn\'t have "repositories" property'
-            );
+            $this->debugSection('Warning', 'Repository can\'t be mocked, the EventManager class doesn\'t have "repositories" property');
         }
     }
 
@@ -434,10 +429,5 @@ EOF;
                 $qb->setParameter($paramname, $val);
             }
         }
-    }
-
-    public function _getEntityManager()
-    {
-        return $this->em;
     }
 }

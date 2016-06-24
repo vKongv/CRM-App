@@ -16,7 +16,7 @@ Runtime:       %s
 
 ...FSSS                                                             7 / 7 (100%)
 
-Time: %s, Memory: %s
+Time: %s, Memory: %sMb
 
 There was 1 failure:
 

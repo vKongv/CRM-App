@@ -75,5 +75,8 @@ class WebDriver extends Page
             $output .= $message->with($node->getTagName(), $node->getText())->style('info')->prepend("\n+ ");
         }
         return $output;
+
     }
+
+
 }

@@ -34,9 +34,7 @@ class MySql extends Db
     {
         if (!isset($this->primaryKeys[$tableName])) {
             $primaryKey = [];
-            $stmt = $this->getDbh()->query(
-                'SHOW KEYS FROM ' . $this->getQuotedName($tableName) . ' WHERE Key_name = "PRIMARY"'
-            );
+            $stmt = $this->getDbh()->query('SHOW KEYS FROM ' . $this->getQuotedName($tableName) . ' WHERE Key_name = "PRIMARY"');
             $columns = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
             foreach ($columns as $column) {

@@ -2,20 +2,18 @@
 namespace Codeception\Lib\Driver;
 
 use Codeception\Lib\Interfaces\Queue;
-use Pheanstalk\Pheanstalk;
-use Pheanstalk\Exception\ConnectionException;
 
 class Beanstalk implements Queue
 {
 
     /**
-     * @var Pheanstalk
+     * @var \Pheanstalk_Pheanstalk
      */
     protected $queue;
 
     public function openConnection($config)
     {
-        $this->queue = new Pheanstalk($config['host'], $config['port'], $config['timeout']);
+        $this->queue = new \Pheanstalk_Pheanstalk($config['host'], $config['port'], $config['timeout']);
     }
 
     /**
@@ -40,7 +38,7 @@ class Beanstalk implements Queue
     {
         try {
             return $this->queue->statsTube($queue)['total-jobs'];
-        } catch (ConnectionException $ex) {
+        } catch (\Pheanstalk_Exception_ServerException $ex) {
             \PHPUnit_Framework_Assert::fail("queue [$queue] not found");
         }
     }
@@ -73,7 +71,7 @@ class Beanstalk implements Queue
     {
         try {
             return $this->queue->statsTube($queue)['current-jobs-ready'];
-        } catch (ConnectionException $e) {
+        } catch (\Pheanstalk_Exception_ServerException $e) {
             \PHPUnit_Framework_Assert::fail("queue [$queue] not found");
         }
     }

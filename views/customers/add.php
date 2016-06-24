@@ -14,12 +14,13 @@ use yii\widgets\ActiveForm;
 $form = ActiveForm::begin([
   'id' => 'add-customer-form',
 ]);
-?>
 
-<?= $form->field($customer, 'name'); ?>
-<?= $form->field($customer, 'birth_date'); ?>
-<?= $form->field($customer, 'notes'); ?>
-<?= $form->field($phone, 'number'); ?>
+echo $form->errorSummary([$customer, $phone]);
+echo $form->field($customer, 'name');
+echo $form->field($customer, 'birth_date');
+echo $form->field($customer, 'notes');
 
-<?= Html::submitButton('Submit', ['class' => 'btn btn-primary']);?>
-<?php ActiveForm::end(); ?>
+echo $form->field($phone, 'number');
+
+echo Html::submitButton('Submit', ['class' => 'btn btn-primary']);
+ActiveForm::end();

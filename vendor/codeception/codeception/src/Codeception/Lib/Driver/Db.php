@@ -149,7 +149,7 @@ class Db
     {
         $where = $this->generateWhereClause($criteria);
 
-        $query = "SELECT %s FROM %s %s";
+        $query = "select %s from %s %s";
         return sprintf($query, $column, $this->getQuotedName($table), $where);
     }
 
@@ -164,9 +164,6 @@ class Db
             if ($v === null) {
                 $params[] = $this->getQuotedName($k) . " IS NULL ";
                 unset($criteria[$k]);
-            } elseif (strpos(strtolower($k), ' like') > 0) {
-                $k = str_replace(' like', '', strtolower($k));
-                $params[] = $this->getQuotedName($k) . " LIKE ? ";
             } else {
                 $params[] = $this->getQuotedName($k) . " = ? ";
             }
@@ -224,20 +221,7 @@ class Db
             throw new \Exception("Query '$query' can't be prepared.");
         }
 
-        $i = 0;
-        foreach ($params as $value) {
-            $i++;
-            if (is_bool($value)) {
-                $type = \PDO::PARAM_BOOL;
-            } elseif (is_int($value)) {
-                $type = \PDO::PARAM_INT;
-            } else {
-                $type = \PDO::PARAM_STR;
-            }
-            $sth->bindValue($i, $value, $type);
-        }
-
-        $sth->execute();
+        $sth->execute($params);
         return $sth;
     }
 
@@ -254,9 +238,7 @@ class Db
         if (empty($primaryKey)) {
             return null;
         } elseif (count($primaryKey) > 1) {
-            throw new \Exception(
-                'getPrimaryColumn method does not support composite primary keys, use getPrimaryKey instead'
-            );
+            throw new \Exception('getPrimaryColumn method does not support composite primary keys, use getPrimaryKey instead');
         }
 
         return $primaryKey[0];

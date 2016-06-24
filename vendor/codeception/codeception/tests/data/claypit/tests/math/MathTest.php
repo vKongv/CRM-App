@@ -1,8 +1,8 @@
 <?php
 
-use Math\CalcHelper as Calc;
+use \Math\CalcHelper as Calc;
 
-class MathTest extends \Codeception\Test\Unit
+class MathTest extends \Codeception\TestCase\Test
 {
    /**
     * @var \MathTester

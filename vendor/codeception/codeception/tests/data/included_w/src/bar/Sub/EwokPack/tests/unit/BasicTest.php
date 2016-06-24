@@ -1,7 +1,7 @@
 <?php
 namespace EwokPack\Test;
 
-class BasicTest extends \Codeception\Test\Unit
+class BasicTest extends \Codeception\TestCase\Test
 {
     function testAssert()
     {

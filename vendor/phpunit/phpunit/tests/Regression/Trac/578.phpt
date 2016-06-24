@@ -14,7 +14,7 @@ PHPUnit %s by Sebastian Bergmann and contributors.
 
 EEE                                                                 3 / 3 (100%)
 
-Time: %s, Memory: %s
+Time: %s, Memory: %sMb
 
 There were 3 errors:
 
@@ -33,5 +33,5 @@ Exception: Double printed exception
 
 %sIssue578Test.php:%i
 
-ERRORS!
+FAILURES!
 Tests: 3, Assertions: 0, Errors: 3.

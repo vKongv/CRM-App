@@ -20,7 +20,7 @@ PHPUnit %s by Sebastian Bergmann and contributors.
 
 F.E.E                                                               5 / 5 (100%)
 
-Time: %s, Memory: %s
+Time: %s, Memory: %sMb
 
 There were 2 errors:
 
@@ -42,5 +42,5 @@ There was 1 failure:
 1) Issue1351Test::testFailurePre
 Expected failure.
 %A
-ERRORS!
+FAILURES!
 Tests: 5, Assertions: 5, Errors: 2, Failures: 1.

@@ -135,6 +135,7 @@ EOF;
                 ->place('action', str_replace('dont', 'cant', $refMethod->name))
                 ->place('step', 'ConditionalAssertion')
                 ->produce();
+
         } elseif (0 === strpos($refMethod->name, 'am')) {
             $type = 'Condition';
         } else {
@@ -158,11 +159,13 @@ EOF;
     {
         $params = [];
         foreach ($refMethod->getParameters() as $param) {
+
             if ($param->isOptional()) {
                 $params[] = '$' . $param->name . ' = null';
             } else {
                 $params[] = '$' . $param->name;
             };
+
         }
         return implode(', ', $params);
     }
@@ -212,4 +215,4 @@ EOF;
     {
         return $this->numMethods;
     }
-}
+} 

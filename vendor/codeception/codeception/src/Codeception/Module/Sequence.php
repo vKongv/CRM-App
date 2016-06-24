@@ -3,7 +3,7 @@ namespace Codeception\Module;
 
 use Codeception\Module as CodeceptionModule;
 use Codeception\Exception\ModuleException;
-use Codeception\TestInterface;
+use Codeception\TestCase;
 
 /**
  * Sequence solves data cleanup issue in alternative way.
@@ -21,9 +21,10 @@ use Codeception\TestInterface;
  *
  * ``` php
  * <?php
- * sq('post1'); // post1_521fbc63021eb
- * sq('post2'); // post2_521fbc6302266
- * sq('post1'); // post1_521fbc63021eb
+ * 'post'.sq(1); // post_521fbc63021eb
+ * 'post'.sq(2); // post_521fbc6302266
+ * 'post'.sq(1); // post_521fbc63021eb
+ * ?>
  * ```
  *
  * Example:
@@ -32,10 +33,11 @@ use Codeception\TestInterface;
  * <?php
  * $I->wantTo('create article');
  * $I->click('New Article');
- * $I->fillField('Title', sq('Article'));
+ * $I->fillField('Title', 'Article'.sq('name'));
  * $I->fillField('Body', 'Demo article with Lorem Ipsum');
  * $I->click('save');
- * $I->see(sq('Article') ,'#articles')
+ * $I->see('Article'.sq('name') ,'#articles')
+ * ?>
  * ```
  *
  * Populating Database:
@@ -44,7 +46,7 @@ use Codeception\TestInterface;
  * <?php
  *
  * for ($i = 0; $i<10; $i++) {
- *      $I->haveInDatabase('users', array('login' => sq("user$i"), 'email' => sq("user$i").'@email.com');
+ *      $I->haveInDatabase('users', array('login' => 'user'.sq($i), 'email' => 'user'.sq($i).'@email.com');
  * }
  * ?>
  * ```
@@ -57,60 +59,28 @@ use Codeception\TestInterface;
  * {
  *     public function createUser(AcceptanceTester $I)
  *     {
- *         $I->createUser(sqs('user') . '@mailserver.com', sqs('login'), sqs('pwd'));
+ *         $I->createUser('email' . sqs('user') . '@mailserver.com', sqs('login'), sqs('pwd'));
  *     }
  *
  *     public function checkEmail(AcceptanceTester $I)
  *     {
- *         $I->seeInEmailTo(sqs('user') . '@mailserver.com', sqs('login'));
+ *         $I->seeInEmailTo('email' . sqs('user') . '@mailserver.com', sqs('login'));
  *     }
  *
  *     public function removeUser(AcceptanceTester $I)
  *     {
- *         $I->removeUser(sqs('user') . '@mailserver.com');
+ *         $I->removeUser('email' . sqs('user') . '@mailserver.com');
  *     }
  * }
  * ?>
- * ```
- *
- * ### Config
- *
- * By default produces unique string with param as a prefix:
- *
- * ```
- * sq('user') => 'user_876asd8as87a'
- * ```
- *
- * This behavior can be configured using `prefix` config param.
- *
- * Old style sequences:
- *
- * ```yaml
- * Sequence:
- *     prefix: '_'
- * ```
- *
- * Using id param inside prefix:
- *
- * ```yaml
- * Sequence:
- *     prefix: '{id}.'
  * ```
  */
 class Sequence extends CodeceptionModule
 {
     public static $hash = [];
     public static $suiteHash = [];
-    public static $prefix = '';
 
-    protected $config = ['prefix' => '{id}_'];
-
-    public function _initialize()
-    {
-        static::$prefix = $this->config['prefix'];
-    }
-
-    public function _after(TestInterface $t)
+    public function _after(TestCase $t)
     {
         self::$hash = [];
     }
@@ -123,6 +93,7 @@ class Sequence extends CodeceptionModule
 
 if (!function_exists('sq') && !function_exists('sqs')) {
     require_once __DIR__ . '/../Util/sq.php';
+    require_once __DIR__ . '/../Util/sqs.php';
 } else {
     throw new ModuleException('Codeception\Module\Sequence', "function 'sq' and 'sqs' already defined");
 }

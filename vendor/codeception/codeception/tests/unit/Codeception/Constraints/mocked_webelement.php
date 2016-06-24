@@ -1,6 +1,5 @@
 <?php
-class TestedWebElement extends RemoteWebElement
-{
+class TestedWebElement extends RemoteWebElement {
 
     protected $value;
 

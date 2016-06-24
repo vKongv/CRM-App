@@ -11,7 +11,7 @@ use Codeception\Lib\ModuleContainer;
 use Codeception\Subscriber\ErrorHandler;
 use Codeception\Util\ReflectionHelper;
 use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Database\Eloquent\Model as EloquentModel;
+use Illuminate\Support\Facades\Facade;
 
 /**
  *
@@ -57,10 +57,9 @@ use Illuminate\Database\Eloquent\Model as EloquentModel;
  *
  * ## Acceptance tests
  *
- * You should not use this module for acceptance tests.
- * If you want to use Laravel functionality with your acceptance tests,
- * for example to do test setup, you can initialize the Laravel functionality
- * by adding the following lines of code to your suite `_bootstrap.php` file:
+ * You should not use this module for acceptance tests. If you want to use Laravel functionality with your acceptance tests,
+ * for example to do test setup, you can initialize the Laravel functionality by adding the following lines of code to your
+ * suite `_bootstrap.php` file:
  *
  *     require 'bootstrap/autoload.php';
  *     $app = require 'bootstrap/app.php';
@@ -135,13 +134,13 @@ class Laravel5 extends Framework implements ActiveRecord, PartedModule
     /**
      * Before hook.
      *
-     * @param \Codeception\TestInterface $test
+     * @param \Codeception\TestCase $test
      */
-    public function _before(\Codeception\TestInterface $test)
+    public function _before(\Codeception\TestCase $test)
     {
         $this->client = new LaravelConnector($this);
 
-        if (isset($this->app['db']) && $this->config['cleanup']) {
+        if ($this->app['db'] && $this->config['cleanup']) {
             $this->app['db']->beginTransaction();
         }
     }
@@ -149,28 +148,28 @@ class Laravel5 extends Framework implements ActiveRecord, PartedModule
     /**
      * After hook.
      *
-     * @param \Codeception\TestInterface $test
+     * @param \Codeception\TestCase $test
      */
-    public function _after(\Codeception\TestInterface $test)
+    public function _after(\Codeception\TestCase $test)
     {
-        if (isset($this->app['db']) && $this->config['cleanup']) {
+        if ($this->app['db'] && $this->config['cleanup']) {
             $this->app['db']->rollback();
         }
 
-        if (isset($this->app['auth'])) {
+        if ($this->app['auth']) {
             $this->app['auth']->logout();
         }
 
-        if (isset($this->app['session'])) {
+        if ($this->app['session']) {
             $this->app['session']->flush();
         }
 
-        if (isset($this->app['cache'])) {
+        if ($this->app['cache']) {
             $this->app['cache']->flush();
         }
 
         // disconnect from DB to prevent "Too many connections" issue
-        if (isset($this->app['db'])) {
+        if ($this->app['db']) {
             $this->app['db']->disconnect();
         }
     }
@@ -187,8 +186,7 @@ class Laravel5 extends Framework implements ActiveRecord, PartedModule
         if (!file_exists($bootstrapFile)) {
             throw new ModuleConfigException(
                 $this,
-                "Laravel bootstrap file not found in $bootstrapFile.\n"
-                . "Please provide a valid path to it using 'bootstrap' config param. "
+                "Laravel bootstrap file not found in $bootstrapFile.\nPlease provide a valid path to it using 'bootstrap' config param. "
             );
         }
     }
@@ -382,9 +380,7 @@ class Laravel5 extends Framework implements ActiveRecord, PartedModule
         $currentRouteName = $currentRoute ? $currentRoute->getName() : '';
 
         if ($currentRouteName != $routeName) {
-            $message = empty($currentRouteName)
-                ? "Current route has no name"
-                : "Current route is \"$currentRouteName\"";
+            $message = empty($currentRouteName) ? "Current route has no name" : "Current route is \"$currentRouteName\"";
             $this->fail($message);
         }
     }
@@ -721,7 +717,7 @@ class Laravel5 extends Framework implements ActiveRecord, PartedModule
         }
 
         if ($auth->check()) {
-            $this->fail("There is an authenticated user");
+            $this->fail("There is no authenticated user");
         }
     }
 
@@ -754,163 +750,103 @@ class Laravel5 extends Framework implements ActiveRecord, PartedModule
 
     /**
      * Inserts record into the database.
-     * If you pass the name of a database table as the first argument, this method returns an integer ID.
-     * You can also pass the class name of an Eloquent model, in that case this method returns an Eloquent model.
      *
      * ``` php
      * <?php
-     * $user_id = $I->haveRecord('users', array('name' => 'Davert')); // returns integer
-     * $user = $I->haveRecord('App\User', array('name' => 'Davert')); // returns Eloquent model
+     * $user_id = $I->haveRecord('users', array('name' => 'Davert'));
      * ?>
      * ```
      *
-     * @param string $table
+     * @param $tableName
      * @param array $attributes
-     * @return integer|EloquentModel
+     * @return mixed
      * @part orm
      */
-    public function haveRecord($table, $attributes = [])
+    public function haveRecord($tableName, $attributes = [])
     {
-        if (class_exists($table)) {
-            $model = new $table;
-
-            if (! $model instanceof EloquentModel) {
-                throw new \RuntimeException("Class $table is not an Eloquent model");
-            }
-
-            $model->fill($attributes)->save();
-
-            return $model;
-        }
-
         try {
-            return $this->app['db']->table($table)->insertGetId($attributes);
+            return $this->app['db']->table($tableName)->insertGetId($attributes);
         } catch (\Exception $e) {
-            $this->fail("Could not insert record into table '$table':\n\n" . $e->getMessage());
+            $this->fail("Could not insert record into table '$tableName':\n\n" . $e->getMessage());
         }
     }
 
     /**
      * Checks that record exists in database.
-     * You can pass the name of a database table or the class name of an Eloquent model as the first argument.
      *
      * ``` php
      * <?php
      * $I->seeRecord('users', array('name' => 'davert'));
-     * $I->seeRecord('App\User', array('name' => 'davert'));
      * ?>
      * ```
      *
-     * @param string $table
+     * @param $tableName
      * @param array $attributes
      * @part orm
      */
-    public function seeRecord($table, $attributes = [])
+    public function seeRecord($tableName, $attributes = [])
     {
-        if (class_exists($table)) {
-            if (! $this->findModel($table, $attributes)) {
-                $this->fail("Could not find $table with " . json_encode($attributes));
-            }
-        } else if (! $this->findRecord($table, $attributes)) {
-            $this->fail("Could not find matching record in table '$table'");
+        if (! $this->findRecord($tableName, $attributes)) {
+            $this->fail("Could not find matching record in table '$tableName'");
         }
     }
 
     /**
      * Checks that record does not exist in database.
-     * You can pass the name of a database table or the class name of an Eloquent model as the first argument.
      *
      * ``` php
      * <?php
      * $I->dontSeeRecord('users', array('name' => 'davert'));
-     * $I->dontSeeRecord('App\User', array('name' => 'davert'));
      * ?>
      * ```
      *
-     * @param string $table
+     * @param $tableName
      * @param array $attributes
      * @part orm
      */
-    public function dontSeeRecord($table, $attributes = [])
+    public function dontSeeRecord($tableName, $attributes = [])
     {
-        if (class_exists($table)) {
-            if ($this->findModel($table, $attributes)) {
-                $this->fail("Unexpectedly found matching $table with " . json_encode($attributes));
-            }
-        } else if ($this->findRecord($table, $attributes)) {
-            $this->fail("Unexpectedly found matching record in table '$table'");
+        if ($this->findRecord($tableName, $attributes)) {
+            $this->fail("Unexpectedly found matching record in table '$tableName'");
         }
     }
 
     /**
      * Retrieves record from database
-     * If you pass the name of a database table as the first argument, this method returns an array.
-     * You can also pass the class name of an Eloquent model, in that case this method returns an Eloquent model.
      *
      * ``` php
      * <?php
-     * $record = $I->grabRecord('users', array('name' => 'davert')); // returns array
-     * $record = $I->grabRecord('App\User', array('name' => 'davert')); // returns Eloquent model
+     * $category = $I->grabRecord('users', array('name' => 'davert'));
      * ?>
      * ```
      *
-     * @param string $table
+     * @param $tableName
      * @param array $attributes
-     * @return array|EloquentModel
+     * @return mixed
      * @part orm
      */
-    public function grabRecord($table, $attributes = [])
+    public function grabRecord($tableName, $attributes = [])
     {
-        if (class_exists($table)) {
-            if (! $model = $this->findModel($table, $attributes)) {
-                $this->fail("Could not find $table with " . json_encode($attributes));
-            }
-
-            return $model;
-        }
-
-        if (! $record = $this->findRecord($table, $attributes)) {
-            $this->fail("Could not find matching record in table '$table'");
+        if (! $record = $this->findRecord($tableName, $attributes)) {
+            $this->fail("Could not find matching record in table '$tableName'");
         }
 
         return $record;
     }
 
     /**
-     * @param string $modelClass
+     * @param $tableName
      * @param array $attributes
-     *
-     * @return EloquentModel
+     * @return mixed
      */
-    protected function findModel($modelClass, $attributes = [])
+    protected function findRecord($tableName, $attributes = [])
     {
-        $model = new $modelClass;
-
-        if (!$model instanceof EloquentModel) {
-            throw new \RuntimeException("Class $modelClass is not an Eloquent model");
-        }
-
-        $query = $model->newQuery();
+        $query = $this->app['db']->table($tableName);
         foreach ($attributes as $key => $value) {
             $query->where($key, $value);
         }
 
         return $query->first();
-    }
-
-    /**
-     * @param string $table
-     * @param array $attributes
-     * @return mixed
-     */
-    protected function findRecord($table, $attributes = [])
-    {
-        $query = $this->app['db']->table($table);
-        foreach ($attributes as $key => $value) {
-            $query->where($key, $value);
-        }
-
-        return (array) $query->first();
     }
 
     /*
@@ -919,9 +855,10 @@ class Laravel5 extends Framework implements ActiveRecord, PartedModule
      *
      * ``` php
      * <?php
-     * $I->have('App\User');
-     * $I->have('App\User', ['name' => 'John Doe']);
-     * $I->have('App\User', [], 'admin');
+     * $I->haveModel('App\User');
+     * $I->haveModel('App\User', ['name' => 'John Doe']);
+     * $I->haveModel('App\User', [], 'admin');
+     * $I->haveModel('App\User', [], 'admin', 3);
      * ?>
      * ```
      *
@@ -929,44 +866,69 @@ class Laravel5 extends Framework implements ActiveRecord, PartedModule
      * @param string $model
      * @param array $attributes
      * @param string $name
+     * @param int $times
      * @return mixed
-     * @part orm
      */
-    public function have($model, $attributes = [], $name = 'default')
+    public function haveModel($model, $attributes = [], $name = 'default', $times = 1)
     {
-        try {
-            return $this->modelFactory($model, $name)->create($attributes);
-        } catch(\Exception $e) {
-            $this->fail("Could not create model: \n\n" . get_class($e) . "\n\n" . $e->getMessage());
-        }
+        return $this->createModel($model, $attributes, $name, $times);
     }
 
-    /*
-     * Use Laravel's model factory to create multiple models.
+    /**
+     * Use Laravel's model factory to create a model.
      * Can only be used with Laravel 5.1 and later.
      *
      * ``` php
      * <?php
-     * $I->haveMultiple('App\User', 10);
-     * $I->haveMultiple('App\User', 10, ['name' => 'John Doe']);
-     * $I->haveMultiple('App\User', 10, [], 'admin');
+     * $I->createModel('App\User');
+     * $I->createModel('App\User', ['name' => 'John Doe']);
+     * $I->createModel('App\User', [], 'admin');
+     * $I->createModel('App\User', [], 'admin', 3);
      * ?>
      * ```
      *
      * @see http://laravel.com/docs/5.1/testing#model-factories
      * @param string $model
-     * @param int $times
      * @param array $attributes
      * @param string $name
+     * @param int $times
      * @return mixed
-     * @part orm
      */
-    public function haveMultiple($model, $times, $attributes = [], $name = 'default')
+    public function createModel($model, $attributes = [], $name = 'default', $times = 1)
     {
         try {
             return $this->modelFactory($model, $name, $times)->create($attributes);
         } catch(\Exception $e) {
             $this->fail("Could not create model: \n\n" . get_class($e) . "\n\n" . $e->getMessage());
+        }
+    }
+
+    /**
+     * Use Laravel's model factory to make a model.
+     * Can only be used with Laravel 5.1 and later.
+     *
+     * ``` php
+     * <?php
+     * $I->makeModel('App\User');
+     * $I->makeModel('App\User', ['name' => 'John Doe']);
+     * $I->makeModel('App\User', [], 'admin');
+     * $I->makeModel('App\User', [], 'admin', 3);
+     * ?>
+     * ```
+     *
+     * @see http://laravel.com/docs/5.1/testing#model-factories
+     * @param string $model
+     * @param array $attributes
+     * @param string $name
+     * @param int $times
+     * @return mixed
+     */
+    public function makeModel($model, $attributes = [], $name = 'default', $times = 1)
+    {
+        try {
+            return $this->modelFactory($model, $name, $times)->make($attributes);
+        } catch(\Exception $e) {
+            $this->fail("Could not make model: \n\n" . get_class($e) . "\n\n" . $e->getMessage());
         }
     }
 
@@ -977,7 +939,7 @@ class Laravel5 extends Framework implements ActiveRecord, PartedModule
      * @return \Illuminate\Database\Eloquent\FactoryBuilder
      * @throws ModuleException
      */
-    protected function modelFactory($model, $name, $times = 1)
+    protected function modelFactory($model, $name, $times)
     {
         if (! function_exists('factory')) {
             throw new ModuleException($this, 'The factory() method does not exist. ' .

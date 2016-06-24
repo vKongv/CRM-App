@@ -1,10 +1,12 @@
 <?php
 namespace Codeception\Lib\Actor\Shared;
 
+use Codeception\Scenario;
+
 trait Comment
 {
     /**
-     * @return \Codeception\Scenario
+     * @return Scenario
      */
     abstract protected function getScenario();
 

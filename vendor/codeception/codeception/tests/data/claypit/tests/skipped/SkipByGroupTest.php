@@ -1,6 +1,6 @@
 <?php
 
-class SkipByGroupTest extends \Codeception\Test\Unit
+class SkipByGroupTest extends \Codeception\TestCase\Test
 {
     /**
      * @group abc

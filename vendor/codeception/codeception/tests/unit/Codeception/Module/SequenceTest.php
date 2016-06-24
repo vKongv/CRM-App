@@ -1,6 +1,6 @@
 <?php
 
-class SequenceTest extends \Codeception\Test\Unit
+class SequenceTest extends Codeception\TestCase\Test
 {
     // tests
     public function testSequences()

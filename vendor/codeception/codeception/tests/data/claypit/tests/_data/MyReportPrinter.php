@@ -4,9 +4,8 @@ use Codeception\PHPUnit\ResultPrinter;
 
 class MyReportPrinter extends ResultPrinter implements ConsolePrinter
 {
-    public function endTest(PHPUnit_Framework_Test $test, $time)
+    protected function onTest($name, $success = true, array $steps = [], $time = 0)
     {
-        $name = \Codeception\Test\Descriptor::getTestAsString($test);
         if ($this->testStatus == \PHPUnit_Runner_BaseTestRunner::STATUS_FAILURE) {
             $this->write('×');
         } else {

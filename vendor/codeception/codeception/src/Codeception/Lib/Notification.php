@@ -1,4 +1,4 @@
-<?php
+<?php 
 namespace Codeception\Lib;
 
 class Notification
@@ -18,7 +18,7 @@ class Notification
     private static function formatMessage($message, $location = '')
     {
         if ($location) {
-            return "<bold>$message</bold> <info>$location</info>";
+            return "<focus>$location</focus> | " . $message;
         }
         return $message;
     }
@@ -29,4 +29,5 @@ class Notification
         self::$messages = [];
         return $messages;
     }
+
 }

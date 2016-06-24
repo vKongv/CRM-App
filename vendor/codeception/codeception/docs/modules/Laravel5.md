@@ -1,4 +1,4 @@
-# Laravel5
+
 
 
 
@@ -28,7 +28,6 @@ See the Acceptance tests section below for more details.
 * bootstrap: `string`, default `bootstrap/app.php` - Relative path to app.php config file.
 * root: `string`, default `` - Root path of our application.
 * packages: `string`, default `workbench` - Root path of application packages (if any).
-* disable_exception_handling: `boolean`, default `true` - disable Laravel exception handling
 * disable_middleware: `boolean`, default `false` - disable all middleware.
 * disable_events: `boolean`, default `false` - disable all events.
 * url: `string`, default `` - The application URL.
@@ -44,10 +43,9 @@ See the Acceptance tests section below for more details.
 
 ## Acceptance tests
 
-You should not use this module for acceptance tests.
-If you want to use Laravel functionality with your acceptance tests,
-for example to do test setup, you can initialize the Laravel functionality
-by adding the following lines of code to your suite `_bootstrap.php` file:
+You should not use this module for acceptance tests. If you want to use Laravel functionality with your acceptance tests,
+for example to do test setup, you can initialize the Laravel functionality by adding the following lines of code to your
+suite `_bootstrap.php` file:
 
     require 'bootstrap/autoload.php';
     $app = require 'bootstrap/app.php';
@@ -57,8 +55,6 @@ by adding the following lines of code to your suite `_bootstrap.php` file:
 
 
 
-
-## Actions
 
 ### _findElements
 
@@ -311,23 +307,25 @@ $I->click(['link' => 'Login']);
  * `param` $context
 
 
-### deleteHeader
+### createModel
  
-Deletes the header with the passed name.  Subsequent requests
-will not have the deleted header in its request.
+Use Laravel's model factory to create a model.
+Can only be used with Laravel 5.1 and later.
 
-Example:
-```php
+``` php
 <?php
-$I->haveHttpHeader('X-Requested-With', 'Codeception');
-$I->amOnPage('test-headers.php');
-// ...
-$I->deleteHeader('X-Requested-With');
-$I->amOnPage('some-other-page.php');
+$I->createModel('App\User');
+$I->createModel('App\User', ['name' => 'John Doe']);
+$I->createModel('App\User', [], 'admin');
+$I->createModel('App\User', [], 'admin', 3);
 ?>
 ```
 
- * `param string` $name the name of the header to delete.
+ * `see`  http://laravel.com/docs/5.1/testing#model-factories
+ * `param string` $model
+ * `param array` $attributes
+ * `param string` $name
+ * `param int` $times
 
 
 ### disableEvents
@@ -337,17 +335,6 @@ Disable events for the next requests.
 ``` php
 <?php
 $I->disableEvents();
-?>
-```
-
-
-### disableExceptionHandling
- 
-Disable Laravel exception handling.
-
-``` php
-<?php
-$I->disableExceptionHandling();
 ?>
 ```
 
@@ -395,9 +382,7 @@ For checking the raw source code, use `seeInSource()`.
 
 ### dontSeeAuthentication
  
-Check that user is not authenticated.
-You can specify the guard that should be use for Laravel >= 5.2.
- * `param string|null` $guard
+Check that user is not authenticated
 
 
 ### dontSeeCheckboxIsChecked
@@ -630,29 +615,16 @@ $I->dontSeeOptionIsSelected('#form input[name=payment]', 'Visa');
 ### dontSeeRecord
  
 Checks that record does not exist in database.
-You can pass the name of a database table or the class name of an Eloquent model as the first argument.
 
 ``` php
 <?php
 $I->dontSeeRecord('users', array('name' => 'davert'));
-$I->dontSeeRecord('App\User', array('name' => 'davert'));
 ?>
 ```
 
- * `param string` $table
+ * `param` $tableName
  * `param array` $attributes
  * `[Part]` orm
-
-
-### enableExceptionHandling
- 
-Enable Laravel exception handling.
-
-``` php
-<?php
-$I->enableExceptionHandling();
-?>
-```
 
 
 ### fillField
@@ -749,19 +721,15 @@ $aLinks = $I->grabMultiple('a', 'href');
 ### grabRecord
  
 Retrieves record from database
-If you pass the name of a database table as the first argument, this method returns an array.
-You can also pass the class name of an Eloquent model, in that case this method returns an Eloquent model.
 
 ``` php
 <?php
-$record = $I->grabRecord('users', array('name' => 'davert')); // returns array
-$record = $I->grabRecord('App\User', array('name' => 'davert')); // returns Eloquent model
+$category = $I->grabRecord('users', array('name' => 'davert'));
 ?>
 ```
 
- * `param string` $table
+ * `param` $tableName
  * `param array` $attributes
- * `return` array|EloquentModel
  * `[Part]` orm
 
 
@@ -791,8 +759,7 @@ $service = $I->grabService('foo');
 ### grabTextFrom
  
 Finds and returns the text contents of the given element.
-If a fuzzy locator is used, the element is found using CSS, XPath,
-and by matching the full page source by regular expression.
+If a fuzzy locator is used, the element is found using CSS, XPath, and by matching the full page source by regular expression.
 
 ``` php
 <?php
@@ -813,54 +780,49 @@ $value = $I->grabTextFrom('~<input value=(.*?)]~sgi'); // match with a regex
  * `return` array|mixed|null|string
 
 
-### have
-__not documented__
-
-
-### haveHttpHeader
- 
-Sets the HTTP header to the passed value - which is used on
-subsequent HTTP requests through PhpBrowser.
-
-Example:
-```php
-<?php
-$I->setHeader('X-Requested-With', 'Codeception');
-$I->amOnPage('test-headers.php');
-?>
-```
-
- * `param string` $name the name of the request header
- * `param string` $value the value to set it to for subsequent
-       requests
-
-
-### haveMultiple
+### haveModel
 __not documented__
 
 
 ### haveRecord
  
 Inserts record into the database.
-If you pass the name of a database table as the first argument, this method returns an integer ID.
-You can also pass the class name of an Eloquent model, in that case this method returns an Eloquent model.
 
 ``` php
 <?php
-$user_id = $I->haveRecord('users', array('name' => 'Davert')); // returns integer
-$user = $I->haveRecord('App\User', array('name' => 'Davert')); // returns Eloquent model
+$user_id = $I->haveRecord('users', array('name' => 'Davert'));
 ?>
 ```
 
- * `param string` $table
+ * `param` $tableName
  * `param array` $attributes
- * `return` integer|EloquentModel
  * `[Part]` orm
 
 
 ### logout
  
 Logout user.
+
+
+### makeModel
+ 
+Use Laravel's model factory to make a model.
+Can only be used with Laravel 5.1 and later.
+
+``` php
+<?php
+$I->makeModel('App\User');
+$I->makeModel('App\User', ['name' => 'John Doe']);
+$I->makeModel('App\User', [], 'admin');
+$I->makeModel('App\User', [], 'admin', 3);
+?>
+```
+
+ * `see`  http://laravel.com/docs/5.1/testing#model-factories
+ * `param string` $model
+ * `param array` $attributes
+ * `param string` $name
+ * `param int` $times
 
 
 ### moveBack
@@ -884,7 +846,7 @@ You can set additional cookie params like `domain`, `path` in array passed as la
  
 Checks that the current page contains the given string (case insensitive).
 
-You can specify a specific HTML element (via CSS or XPath) as the second
+You can specify a specific HTML element (via CSS or XPath) as the second 
 parameter to only search within that element.
 
 ``` php
@@ -914,9 +876,7 @@ For checking the raw source code, use `seeInSource()`.
 
 ### seeAuthentication
  
-Checks that a user is authenticated.
-You can specify the guard that should be use for Laravel >= 5.2.
- * `param string|null` $guard
+Checks that a user is authenticated
 
 
 ### seeCheckboxIsChecked
@@ -1287,16 +1247,14 @@ Asserts that current page has 404 response status code.
 ### seeRecord
  
 Checks that record exists in database.
-You can pass the name of a database table or the class name of an Eloquent model as the first argument.
 
 ``` php
 <?php
 $I->seeRecord('users', array('name' => 'davert'));
-$I->seeRecord('App\User', array('name' => 'davert'));
 ?>
 ```
 
- * `param string` $table
+ * `param` $tableName
  * `param array` $attributes
  * `[Part]` orm
 
@@ -1341,15 +1299,6 @@ Provide an array for the second argument to select multiple options:
 ``` php
 <?php
 $I->selectOption('Which OS do you use?', array('Windows','Linux'));
-?>
-```
-
-Or provide an associative array for the second argument to specifically define which selection method should be used:
-
-``` php
-<?php
-$I->selectOption('Which OS do you use?', array('text' => 'Windows')); // Only search by text 'Windows'
-$I->selectOption('Which OS do you use?', array('value' => 'windows')); // Only search by value 'windows'
 ?>
 ```
 
@@ -1438,8 +1387,8 @@ Submits the given form on the page, optionally with the given form
 values.  Pass the form field's values as an array in the second
 parameter.
 
-Although this function can be used as a short-hand version of
-`fillField()`, `selectOption()`, `click()` etc. it has some important
+Although this function can be used as a short-hand version of 
+`fillField()`, `selectOption()`, `click()` etc. it has some important 
 differences:
 
  * Only field *names* may be used, not CSS/XPath selectors nor field labels
@@ -1449,7 +1398,7 @@ differences:
    like you would if you called `fillField()` or `selectOption()` with
    a missing field.
 
-Fields that are not provided will be filled by their values from the page,
+Fields that are not provided will be filled by their values from the page, 
 or from any previous calls to `fillField()`, `selectOption()` etc.
 You don't need to click the 'Submit' button afterwards.
 This command itself triggers the request to form's action.
@@ -1530,7 +1479,7 @@ $I->submitForm(
 );
 ```
 
-This function works well when paired with `seeInFormFields()`
+This function works well when paired with `seeInFormFields()` 
 for quickly testing CRUD interfaces and form validation logic.
 
 ``` php
@@ -1574,7 +1523,7 @@ $I->submitForm('#my-form', [
 Mixing string and boolean values for a checkbox's value is not supported
 and may produce unexpected results.
 
-Field names ending in `[]` must be passed without the trailing square
+Field names ending in `[]` must be passed without the trailing square 
 bracket characters, and must contain an array for its value.  This allows
 submitting multiple values with the same name, consider:
 
@@ -1635,4 +1584,4 @@ $I->uncheckOption('#notify');
 
  * `param` $option
 
-<p>&nbsp;</p><div class="alert alert-warning">Module reference is taken from the source code. <a href="https://github.com/Codeception/Codeception/tree/2.2/src/Codeception/Module/Laravel5.php">Help us to improve documentation. Edit module reference</a></div>
+<p>&nbsp;</p><div class="alert alert-warning">Module reference is taken from the source code. <a href="https://github.com/Codeception/Codeception/tree/2.1/src/Codeception/Module/Laravel5.php">Help us to improve documentation. Edit module reference</a></div>

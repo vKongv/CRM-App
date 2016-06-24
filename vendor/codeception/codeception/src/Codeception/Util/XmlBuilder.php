@@ -2,8 +2,7 @@
 namespace Codeception\Util;
 
 /**
- * That's a pretty simple yet powerful class to build XML structures in jQuery-like style.
- * With no XML line actually written!
+ * That's a pretty simple yet powerful class to build XML structures in jQuery-like style. With no XML line actually written!
  * Uses DOM extension to manipulate XML data.
  *
  *
@@ -48,8 +47,7 @@ namespace Codeception\Util;
  *
  * ### Usage
  *
- * Builder uses chained calls. So each call to builder returns a builder object.
- * Except for `getDom` and `__toString` methods.
+ * Builder uses chained calls. So each call to builder returns a builder object. Except for `getDom` and `__toString` methods.
  *
  *  * `$xml->node` - create new xml node and go inside of it.
  *  * `$xml->node->val('value')` - sets the inner value of node

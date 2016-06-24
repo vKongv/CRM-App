@@ -3,7 +3,7 @@ namespace Codeception\Module;
 
 use Codeception\Module as CodeceptionModule;
 use Codeception\Exception\ModuleException as ModuleException;
-use Codeception\TestInterface;
+use Codeception\TestCase;
 use Exception;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
@@ -94,7 +94,7 @@ class AMQP extends CodeceptionModule
         }
     }
 
-    public function _before(TestInterface $test)
+    public function _before(TestCase $test)
     {
         if ($this->config['cleanup']) {
             $this->cleanup();
@@ -104,7 +104,7 @@ class AMQP extends CodeceptionModule
     /**
      * Sends message to exchange by sending exchange name, message
      * and (optionally) a routing key
-     *
+     * 
      * ``` php
      * <?php
      * $I->pushToExchange('exchange.emails', 'thanks');

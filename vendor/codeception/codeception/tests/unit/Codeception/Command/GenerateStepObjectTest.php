@@ -1,8 +1,7 @@
 <?php
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'BaseCommandRunner.php';
 
-class GenerateStepObjectTest extends BaseCommandRunner
-{
+class GenerateStepObjectTest extends BaseCommandRunner {
 
     protected function setUp()
     {
@@ -39,14 +38,13 @@ class GenerateStepObjectTest extends BaseCommandRunner
         $this->assertIsValidPhp($this->content);
     }
 
-    public function testCreateInSubpath()
-    {
-        $this->execute(array('suite' => 'shire', 'step' => 'User/Login', '--silent' => true));
-        $generated = $this->log[0];
-        $this->assertEquals(
-            \Codeception\Configuration::supportDir().'Step/Shire/User/Login.php',
-            $generated['filename']
-        );
-        $this->assertIsValidPhp($this->content);
-    }
+     public function testCreateInSubpath()
+     {
+         $this->execute(array('suite' => 'shire', 'step' => 'User/Login', '--silent' => true));
+         $generated = $this->log[0];
+         $this->assertEquals(\Codeception\Configuration::supportDir().'Step/Shire/User/Login.php', $generated['filename']);
+         $this->assertIsValidPhp($this->content);
+     }
+
+
 }

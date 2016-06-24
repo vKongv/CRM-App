@@ -2,7 +2,7 @@
 namespace Codeception\Module;
 
 use Codeception\Lib\Framework;
-use Codeception\TestInterface;
+use Codeception\TestCase;
 use Codeception\Configuration;
 use Codeception\Lib\Connector\ZendExpressive as ZendExpressiveConnector;
 use Psr\Http\Message\ResponseInterface;
@@ -61,14 +61,14 @@ class ZendExpressive extends Framework
         $this->initResponseCollector();
     }
 
-    public function _before(TestInterface $test)
+    public function _before(TestCase $test)
     {
         $this->client = new ZendExpressiveConnector();
         $this->client->setApplication($this->application);
         $this->client->setResponseCollector($this->responseCollector);
     }
 
-    public function _after(TestInterface $test)
+    public function _after(TestCase $test)
     {
         //Close the session, if any are open
         if (session_status() == PHP_SESSION_ACTIVE) {

@@ -1,6 +1,7 @@
 <?php
+use Codeception\Util\Stub;
 
-class DataProvidersTest extends \Codeception\Test\Unit
+class DataProvidersTest extends \Codeception\TestCase\Test
 {
    /**
     * @var \CodeGuy

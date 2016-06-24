@@ -34,7 +34,7 @@ use Monolog\Handler\RotatingFileHandler;
  */
 class Logger extends Extension
 {
-    public static $events = [
+    static $events = [
         Events::SUITE_BEFORE    => 'beforeSuite',
         Events::TEST_BEFORE     => 'beforeTest',
         Events::TEST_AFTER      => 'afterTest',
@@ -120,4 +120,5 @@ class Logger extends Extension
     {
         $this->logger->info((string) $e->getStep());
     }
-}
+
+} 

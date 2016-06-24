@@ -1,4 +1,5 @@
 <?php
+
 class Framework_MockObject_Invocation_ObjectTest extends PHPUnit_Framework_TestCase
 {
     public function testConstructorRequiresClassAndMethodAndParametersAndObject()
@@ -8,7 +9,7 @@ class Framework_MockObject_Invocation_ObjectTest extends PHPUnit_Framework_TestC
             'FooMethod',
             ['an_argument'],
             'ReturnType',
-            new stdClass
+            new StdClass
         );
     }
 
@@ -19,7 +20,7 @@ class Framework_MockObject_Invocation_ObjectTest extends PHPUnit_Framework_TestC
             'FooMethod',
             ['an_argument'],
             'ReturnType',
-            new stdClass
+            new StdClass
         );
 
         $this->assertSame('FooClass', $invocation->className);
@@ -32,7 +33,7 @@ class Framework_MockObject_Invocation_ObjectTest extends PHPUnit_Framework_TestC
             'FooMethod',
             ['an_argument'],
             'ReturnType',
-            new stdClass
+            new StdClass
         );
 
         $this->assertSame('FooMethod', $invocation->methodName);
@@ -40,7 +41,7 @@ class Framework_MockObject_Invocation_ObjectTest extends PHPUnit_Framework_TestC
 
     public function testAllowToGetObjectSetInConstructor()
     {
-        $expectedObject = new stdClass;
+        $expectedObject = new StdClass;
 
         $invocation = new PHPUnit_Framework_MockObject_Invocation_Object(
             'FooClass',
@@ -56,7 +57,7 @@ class Framework_MockObject_Invocation_ObjectTest extends PHPUnit_Framework_TestC
     public function testAllowToGetMethodParametersSetInConstructor()
     {
         $expectedParameters = [
-          'foo', 5, ['a', 'b'], new stdClass, null, false
+          'foo', 5, ['a', 'b'], new StdClass, null, false
         ];
 
         $invocation = new PHPUnit_Framework_MockObject_Invocation_Object(
@@ -64,7 +65,7 @@ class Framework_MockObject_Invocation_ObjectTest extends PHPUnit_Framework_TestC
             'FooMethod',
             $expectedParameters,
             'ReturnType',
-            new stdClass
+            new StdClass
         );
 
         $this->assertSame($expectedParameters, $invocation->parameters);
@@ -72,7 +73,7 @@ class Framework_MockObject_Invocation_ObjectTest extends PHPUnit_Framework_TestC
 
     public function testConstructorAllowToSetFlagCloneObjectsInParameters()
     {
-        $parameters   = [new stdClass];
+        $parameters   = [new StdClass];
         $cloneObjects = true;
 
         $invocation = new PHPUnit_Framework_MockObject_Invocation_Object(
@@ -80,7 +81,7 @@ class Framework_MockObject_Invocation_ObjectTest extends PHPUnit_Framework_TestC
             'FooMethod',
             $parameters,
             'ReturnType',
-            new stdClass,
+            new StdClass,
             $cloneObjects
         );
 
@@ -97,7 +98,7 @@ class Framework_MockObject_Invocation_ObjectTest extends PHPUnit_Framework_TestC
             'FooMethod',
             ['an_argument'],
             $expectedReturnType,
-            new stdClass
+            new StdClass
         );
 
         $this->assertSame($expectedReturnType, $invocation->returnType);

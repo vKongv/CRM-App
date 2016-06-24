@@ -5,7 +5,7 @@ use Codeception\Event\TestEvent;
 
 abstract class GroupObject extends Extension
 {
-    public static $group;
+    static $group;
 
     public function _before(TestEvent $e)
     {
@@ -15,7 +15,7 @@ abstract class GroupObject extends Extension
     {
     }
 
-    public static function getSubscribedEvents()
+    static function getSubscribedEvents()
     {
         $inheritedEvents = parent::getSubscribedEvents();
         $events = [];

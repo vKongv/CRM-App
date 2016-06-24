@@ -8,6 +8,7 @@ class RunEnvironmentCest
         $I->amInPath('tests/data/sandbox');
         $I->executeCommand('run dummy --env=dev');
         $I->seeInShellOutput("OK (");
+
     }
 
     public function testProdEnvironment(CliGuy $I)
@@ -42,9 +43,9 @@ class RunEnvironmentCest
     {
         $I->amInPath('tests/data/sandbox');
         $I->executeCommand('run powers MageGuildCest.php  --env whisky');
-        $I->seeInShellOutput('MageGuildCest: Red label');
-        $I->seeInShellOutput('MageGuildCest: Black label');
-        $I->seeInShellOutput('MageGuildCest: Power of the universe');
+        $I->seeInShellOutput('Red label (MageGuildCest::redLabel)');
+        $I->seeInShellOutput('Black label (MageGuildCest::blackLabel)');
+        $I->seeInShellOutput('Power of the universe (MageGuildCest::powerOfTheUniverse)');
         $I->seeInShellOutput('OK (3 tests, 3 assertions)');
     }
 
@@ -52,7 +53,7 @@ class RunEnvironmentCest
     {
         $I->amInPath('tests/data/sandbox');
         $I->executeCommand('run powers MageGuildCest.php  --env dev');
-        $I->seeInShellOutput('MageGuildCest: Power of the universe');
+        $I->seeInShellOutput('Power of the universe (MageGuildCest::powerOfTheUniverse)');
         $I->seeInShellOutput('OK (1 test, 1 assertion)');
     }
 
@@ -124,5 +125,6 @@ class RunEnvironmentCest
         $I->amInPath('tests/data/sandbox');
         $I->executeCommand('run messages MessageCest.php:allMessages -vv --env env3');
         $I->seeInShellOutput('MESSAGE2 FROM ENV3');
+
     }
 }

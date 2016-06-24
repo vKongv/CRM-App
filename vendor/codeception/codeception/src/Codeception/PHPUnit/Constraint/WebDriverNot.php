@@ -15,10 +15,7 @@ class WebDriverNot extends WebDriver
     {
         $selectorString = Locator::humanReadableString($selector);
         if (!$this->string) {
-            throw new \PHPUnit_Framework_ExpectationFailedException(
-                "Element $selectorString was found",
-                $comparisonFailure
-            );
+            throw new \PHPUnit_Framework_ExpectationFailedException("Element $selectorString was found", $comparisonFailure);
         }
 
         $output = "There was $selectorString element";

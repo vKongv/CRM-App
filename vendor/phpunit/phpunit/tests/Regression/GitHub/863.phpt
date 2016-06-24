@@ -19,6 +19,6 @@ PHPUnit %s by Sebastian Bergmann and contributors.
 ............................................................... 126 / 150 ( 84%)
 ........................                                        150 / 150 (100%)
 
-Time: %s, Memory: %s
+Time: %s, Memory: %sMb
 
 OK (150 tests, 150 assertions)

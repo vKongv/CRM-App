@@ -79,11 +79,8 @@ EOF;
             return ''; // global pageobject
         }
 
-        $actor = lcfirst($this->settings['class_name']);
         $actorClass = $this->settings['class_name'];
-        if (!empty($this->settings['namespace'])) {
-            $actorClass = rtrim($this->settings['namespace'], '\\') . '\\' . $actorClass;
-        }
+        $actor = lcfirst($this->settings['class_name']);
 
         return (new Template($this->actionsTemplate))
             ->place('actorClass', $actorClass)

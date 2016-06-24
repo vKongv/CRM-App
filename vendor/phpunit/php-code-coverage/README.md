@@ -27,7 +27,7 @@ To add PHP_CodeCoverage as a local, per-project dependency to your project, simp
 
     {
         "require": {
-            "phpunit/php-code-coverage": "^4"
+            "phpunit/php-code-coverage": "^3"
         }
     }
 

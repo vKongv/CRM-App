@@ -2,7 +2,7 @@
 namespace Codeception\Module;
 
 use Codeception\Module as CodeceptionModule;
-use Codeception\TestInterface;
+use Codeception\TestCase;
 use Codeception\Exception\ModuleConfigException;
 use Codeception\Lib\Driver\AmazonSQS;
 use Codeception\Lib\Driver\Beanstalk;
@@ -23,7 +23,7 @@ use Codeception\Lib\Driver\Iron;
  *
  * The following dependencies are needed for the listed queue servers:
  *
- * * Beanstalkd: pda/pheanstalk ~3.0
+ * * Beanstalkd: pda/pheanstalk ~2.0
  * * Amazon SQS: aws/aws-sdk-php
  * * IronMQ: iron-io/iron_mq
  *
@@ -132,9 +132,9 @@ class Queue extends CodeceptionModule
     /**
      * Setup connection and open/setup the connection with config settings
      *
-     * @param \Codeception\TestInterface $test
+     * @param \Codeception\TestCase $test
      */
-    public function _before(TestInterface $test)
+    public function _before(TestCase $test)
     {
         $this->queueDriver->openConnection($this->config);
     }

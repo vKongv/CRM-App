@@ -13,7 +13,7 @@ PHPUnit %s by Sebastian Bergmann and contributors.
 
 EE                                                                  2 / 2 (100%)
 
-Time: %s, Memory: %s
+Time: %s, Memory: %sMb
 
 There were 2 errors:
 
@@ -60,5 +60,5 @@ Exception: Three
 
 %s:%i
 
-ERRORS!
+FAILURES!
 Tests: 2, Assertions: 1, Errors: 2.

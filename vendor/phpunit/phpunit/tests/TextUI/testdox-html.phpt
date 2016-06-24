@@ -51,6 +51,6 @@ PHPUnit %s by Sebastian Bergmann and contributors.
     </body>
 </html>
 
-Time: %s, Memory: %s
+Time: %s, Memory: %sMb
 
 OK (3 tests, 3 assertions)

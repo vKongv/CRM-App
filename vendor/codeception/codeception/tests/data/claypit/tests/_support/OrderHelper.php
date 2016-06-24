@@ -4,7 +4,7 @@ namespace Codeception\Module;
 
 use Codeception\Configuration;
 use Codeception\Module;
-use Codeception\TestInterface;
+use Codeception\TestCase;
 
 class OrderHelper extends Module
 {
@@ -13,17 +13,17 @@ class OrderHelper extends Module
         self::appendToFile('I');
     }
 
-    public function _before(TestInterface $test)
+    public function _before(TestCase $test)
     {
         self::appendToFile('[');
     }
 
-    public function _after(TestInterface $test)
+    public function _after(TestCase $test)
     {
         self::appendToFile(']');
     }
 
-    public function _failed(TestInterface $test, $fail)
+    public function _failed(TestCase $test, $fail)
     {
         self::appendToFile('F');
     }

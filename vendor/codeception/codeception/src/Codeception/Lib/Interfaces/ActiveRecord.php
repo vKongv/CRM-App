@@ -1,7 +1,7 @@
 <?php
 namespace Codeception\Lib\Interfaces;
 
-interface ActiveRecord extends ORM
+interface ActiveRecord
 {
     public function haveRecord($model, $attributes = []);
 

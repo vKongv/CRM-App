@@ -1,9 +1,11 @@
 <?php
 namespace Codeception\Lib;
 
+use Codeception\Configuration;
+use Codeception\TestCase\Interfaces\Reported;
 use Codeception\Util\Stub;
 
-class GroupManagerTest extends \Codeception\Test\Unit
+class GroupManagerTest extends \Codeception\TestCase\Test
 {
     /**
      * @var \Codeception\Lib\GroupManager
@@ -77,17 +79,19 @@ class GroupManagerTest extends \Codeception\Test\Unit
 
     protected function makeTestCase($file, $name = '')
     {
-        return Stub::make(
-            '\Codeception\Lib\DescriptiveTestCase',
-            [
+        return Stub::make('\Codeception\Lib\DescriptiveTestCase', [
                 'getReportFields' => ['file' => codecept_root_dir() . $file],
-                'getName' => $name
-            ]
+                'getName' => $name]
         );
     }
+
 }
 
-class DescriptiveTestCase extends \Codeception\Test\Unit
+class DescriptiveTestCase extends \Codeception\TestCase implements Reported
 {
-
+    public function getEnvironment() {}
+    public function getScenario() {}
+    public function getReportFields() {}
+    public function _startTest() {}
+    public function _finishTest() {}
 }

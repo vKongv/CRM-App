@@ -2,7 +2,7 @@
 namespace Codeception\Module;
 
 use Codeception\Module\Filesystem;
-use Codeception\TestInterface;
+use Codeception\TestCase;
 
 /**
  *
@@ -20,8 +20,7 @@ use Codeception\TestInterface;
  * * FTP
  * * SFTP
  *
- * Connection uses php build in FTP client for FTP,
- * connection to SFTP uses [phpseclib](http://phpseclib.sourceforge.net/) pulled in using composer.
+ * Connection uses php build in FTP client for FTP, connection to SFTP uses [phpseclib](http://phpseclib.sourceforge.net/) pulled in using composer.
  *
  * For SFTP, add [phpseclib](http://phpseclib.sourceforge.net/) to require list.
  * ```
@@ -125,9 +124,9 @@ class FTP extends Filesystem
     /**
      * Setup connection and login with config settings
      *
-     * @param \Codeception\TestInterface $test
+     * @param \Codeception\TestCase $test
      */
-    public function _before(TestInterface $test)
+    public function _before(TestCase $test)
     {
         // Login using config settings
         $this->loginAs($this->config['user'], $this->config['password']);
@@ -136,7 +135,7 @@ class FTP extends Filesystem
     /**
      * Close the FTP connection & Clear up
      */
-    public function _after(TestInterface $test)
+    public function _after(TestCase $test)
     {
         $this->_closeConnection();
 
@@ -277,8 +276,7 @@ class FTP extends Filesystem
     // ----------- UTILITY METHODS BELOW HERE -------------------------//
 
     /**
-     * Opens a file (downloads from the remote FTP/SFTP system to a tmp directory for processing)
-     * and stores it's content.
+     * Opens a file (downloads from the remote FTP/SFTP system to a tmp directory for processing) and stores it's content.
      *
      * Usage:
      *
@@ -442,8 +440,7 @@ class FTP extends Filesystem
      */
     public function grabFileList($path = '', $ignore = true)
     {
-        $absolutize_path = $this->absolutizePath($path)
-            . ($path != '' && substr($path, -1) != '/' ? DIRECTORY_SEPARATOR : '');
+        $absolutize_path = $this->absolutizePath($path) . ($path != '' && substr($path, -1) != '/' ? DIRECTORY_SEPARATOR : '');
         $files = $this->_listFiles($absolutize_path);
 
         $display_files = [];
@@ -453,13 +450,9 @@ class FTP extends Filesystem
                 if (strtolower($file) != '.' &&
                     strtolower($file) != '..' &&
                     strtolower($file) != 'thumbs.db'
-                ) { // Ignore '.', '..' and 'thumbs.db'
-                    // Replace full path from file listings if returned in listing
-                    $file = str_replace(
-                        $absolutize_path,
-                        '',
-                        $file
-                    );
+                ) {    // Ignore '.', '..' and 'thumbs.db'
+
+                    $file = str_replace($absolutize_path, '', $file); // Replace full path from file listings if returned in listing
                     $display_files[] = $file;
                     $this->debug('    - ' . $file);
                 }

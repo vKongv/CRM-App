@@ -1,8 +1,7 @@
 <?php
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'BaseCommandRunner.php';
 
-class GeneratePhpunitTest extends BaseCommandRunner
-{
+class GeneratePhpunitTest extends BaseCommandRunner {
 
     protected function setUp()
     {
@@ -51,4 +50,7 @@ class GeneratePhpunitTest extends BaseCommandRunner
         $this->assertContains('Test was created in tests/shire/MiddleEarth/PonyTest.php', $this->output);
         $this->assertIsValidPhp($this->content);
     }
+
+
+
 }

@@ -6,15 +6,15 @@ use Codeception\Event\StepEvent;
 use Codeception\Event\SuiteEvent;
 use Codeception\Event\TestEvent;
 use Codeception\Events;
-use Codeception\Suite;
-use Codeception\TestInterface;
+use Codeception\Lib\Suite;
+use Codeception\TestCase;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class Module implements EventSubscriberInterface
 {
     use Shared\StaticEvents;
 
-    public static $events = [
+    static $events = [
         Events::TEST_BEFORE  => 'before',
         Events::TEST_AFTER   => 'after',
         Events::STEP_BEFORE  => 'beforeStep',
@@ -48,7 +48,7 @@ class Module implements EventSubscriberInterface
 
     public function before(TestEvent $event)
     {
-        if (!$event->getTest() instanceof TestInterface) {
+        if (!$event->getTest() instanceof TestCase) {
             return;
         }
 
@@ -61,7 +61,7 @@ class Module implements EventSubscriberInterface
 
     public function after(TestEvent $e)
     {
-        if (!$e->getTest() instanceof TestInterface) {
+        if (!$e->getTest() instanceof TestCase) {
             return;
         }
         foreach ($this->modules as $module) {
@@ -71,7 +71,7 @@ class Module implements EventSubscriberInterface
 
     public function failed(FailEvent $e)
     {
-        if (!$e->getTest() instanceof TestInterface) {
+        if (!$e->getTest() instanceof TestCase) {
             return;
         }
         foreach ($this->modules as $module) {

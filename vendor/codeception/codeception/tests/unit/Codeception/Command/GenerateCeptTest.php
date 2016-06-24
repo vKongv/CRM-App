@@ -1,8 +1,7 @@
 <?php
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'BaseCommandRunner.php';
 
-class GenerateCeptTest extends BaseCommandRunner
-{
+class GenerateCeptTest extends BaseCommandRunner {
 
     protected function setUp()
     {
@@ -51,4 +50,6 @@ class GenerateCeptTest extends BaseCommandRunner
         $this->assertContains('$I = new HobbitGuy($scenario);', $this->content);
         $this->assertIsValidPhp($this->content);
     }
+
+
 }

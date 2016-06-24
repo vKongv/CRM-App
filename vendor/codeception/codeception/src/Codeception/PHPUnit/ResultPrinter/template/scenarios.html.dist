@@ -70,6 +70,8 @@
              border-radius: 0px;
          }
 
+
+
          .scenarioStepsTable.substeps td {
              background: #bdc3c7;
          }
@@ -100,18 +102,6 @@
 		 border-radius: 5px;
 		 padding: 20px;
 		 }
-
-         .toggle {
-             background: rgba(255,255,255,0.5);
-             border-radius: 10px;
-             display: inline-block;
-             width: 20px;
-             height: 20px;
-             text-align: center;
-             margin: auto;
-             color: #666
-         }
-
 		 ul#toolbar-filter {
             display: block;
             position: fixed;
@@ -139,13 +129,13 @@
   function showHide(nodeId, linkObj)
   {
     var subObj = document.getElementById('stepContainer' + nodeId);
-    var toggle = linkObj.childNodes[0];
-    if (toggle.innerHTML == '+') {
-      toggle.innerHTML = '-';
+
+    if (linkObj.innerHTML.indexOf('+')>0) {
+      linkObj.innerHTML = linkObj.innerHTML.replace('+','-');
       subObj.style.display='block';
       subObj.style.width = '100%';
     } else {
-      toggle.innerHTML = '+';
+      linkObj.innerHTML = linkObj.innerHTML.replace('-','+');
       subObj.style.display='none';
     }
   }

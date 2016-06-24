@@ -60,6 +60,7 @@ class Uri
         }
 
         return (string) $base;
+
     }
 
     /**
@@ -74,6 +75,7 @@ class Uri
             ->withPath($uri->getPath())
             ->withQuery($uri->getQuery())
             ->withFragment($uri->getFragment());
+
     }
 
     public static function retrieveHost($url)

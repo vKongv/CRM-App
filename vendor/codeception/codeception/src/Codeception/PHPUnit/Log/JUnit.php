@@ -2,8 +2,7 @@
 namespace Codeception\PHPUnit\Log;
 
 use Codeception\Configuration;
-use Codeception\Test\Interfaces\Reported;
-use Codeception\Test\Test;
+use Codeception\TestCase\Interfaces\Reported;
 
 class JUnit extends \PHPUnit_Util_Log_JUnit
 {
@@ -25,19 +24,5 @@ class JUnit extends \PHPUnit_Util_Log_JUnit
             }
             $this->currentTestCase->setAttribute($attr, $value);
         }
-    }
-
-    public function endTest(\PHPUnit_Framework_Test $test, $time)
-    {
-        if ($this->currentTestCase !== null and $test instanceof Test) {
-            $numAssertions = $test->getNumAssertions();
-            $this->testSuiteAssertions[$this->testSuiteLevel] += $numAssertions;
-
-            $this->currentTestCase->setAttribute(
-                'assertions',
-                $numAssertions
-            );
-        }
-        parent::endTest($test, $time);
     }
 }

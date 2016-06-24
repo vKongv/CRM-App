@@ -7,7 +7,6 @@ use Codeception\Exception\ModuleException;
 
 class MongoDb
 {
-    private $legacy;
     private $dbh;
     private $dsn;
     private $dbName;
@@ -19,63 +18,6 @@ class MongoDb
     public static function connect($dsn, $user, $password)
     {
         throw new \Exception(__CLASS__ . '::connect() - hm, it looked like this method had become obsolete...');
-    }
-
-    /**
-     * Connect to the Mongo server using the MongoDB extension.
-     */
-    protected function setupMongoDB($dsn, $options)
-    {
-        try {
-            $this->client = new \MongoDB\Client($dsn, $options);
-            $this->dbh    = $this->client->selectDatabase($this->dbName);
-        } catch (\MongoDB\Driver\Exception $e) {
-            throw new ModuleException($this, sprintf('Failed to open Mongo connection: %s', $e->getMessage()));
-        }
-    }
-
-    /**
-     * Connect to the Mongo server using the legacy mongo extension.
-     */
-    protected function setupMongo($dsn, $options)
-    {
-        try {
-            $this->client = new \MongoClient($dsn, $options);
-            $this->dbh    = $this->client->selectDB($this->dbName);
-        } catch (\MongoConnectionException $e) {
-            throw new ModuleException($this, sprintf('Failed to open Mongo connection: %s', $e->getMessage()));
-        }
-    }
-
-    /**
-     * Clean up the Mongo database using the MongoDB extension.
-     */
-    protected function cleanupMongoDB()
-    {
-        try {
-            $this->dbh->drop();
-        } catch (\MongoDB\Driver\Exception $e) {
-            throw new \Exception(sprintf('Failed to drop the DB: %s', $e->getMessage()));
-        }
-    }
-
-    /**
-     * Clean up the Mongo database using the legacy Mongo extension.
-     */
-    protected function cleanupMongo()
-    {
-        try {
-            $list = $this->dbh->listCollections();
-        } catch (\MongoException $e) {
-            throw new \Exception(sprintf('Failed to list collections of the DB: %s', $e->getMessage()));
-        }
-        foreach ($list as $collection) {
-            try {
-                $collection->drop();
-            } catch (\MongoException $e) {
-                throw new \Exception(sprintf('Failed to drop collection: %s', $e->getMessage()));
-            }
-        }
     }
 
     /**
@@ -92,8 +34,6 @@ class MongoDb
      */
     public function __construct($dsn, $user, $password)
     {
-        $this->legacy = class_exists('\\MongoClient');
-
         /* defining DB name */
         $this->dbName = substr($dsn, strrpos($dsn, '/') + 1);
         if (strlen($this->dbName) == 0) {
@@ -119,7 +59,12 @@ class MongoDb
             ];
         }
 
-        $this->{$this->legacy ? 'setupMongo' : 'setupMongoDB'}($dsn, $options);
+        try {
+            $this->client = new \MongoClient($dsn, $options);
+            $this->dbh    = $this->client->selectDB($this->dbName);
+        } catch (\MongoConnectionException $e) {
+            throw new ModuleException($this, sprintf('Failed to open Mongo connection: %s', $e->getMessage()));
+        }
 
         $this->dsn = $dsn;
         $this->user = $user;
@@ -142,7 +87,18 @@ class MongoDb
 
     public function cleanup()
     {
-        $this->{$this->legacy ? 'cleanupMongo' : 'cleanupMongoDB'}();
+        try {
+            $list = $this->dbh->listCollections();
+        } catch (\MongoException $e) {
+            throw new \Exception(sprintf('Failed to list collections of the DB: %s', $e->getMessage()));
+        }
+        foreach ($list as $collection) {
+            try {
+                $collection->drop();
+            } catch (\MongoException $e) {
+                throw new \Exception(sprintf('Failed to drop collection: %s', $e->getMessage()));
+            }
+        }
     }
 
     /**
@@ -174,16 +130,6 @@ class MongoDb
 
     public function setDatabase($dbName)
     {
-        $this->dbh = $this->client->{$this->legacy ? 'selectDB' : 'selectDatabase'}($dbName);
-    }
-
-    /**
-     * Determine if this driver is using the legacy extension or not.
-     *
-     * @return bool
-     */
-    public function isLegacy()
-    {
-        return $this->legacy;
+        $this->dbh = $this->client->selectDB($dbName);
     }
 }

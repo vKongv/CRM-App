@@ -30,7 +30,7 @@ class TestEvent extends Event
     }
 
     /**
-     * @return \Codeception\TestInterface
+     * @return \Codeception\TestCase
      */
     public function getTest()
     {

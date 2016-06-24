@@ -25,6 +25,7 @@ class GenerateHelper extends Command
     {
         $this->setDefinition([
             new InputArgument('name', InputArgument::REQUIRED, 'helper name'),
+            new InputOption('config', 'c', InputOption::VALUE_OPTIONAL, 'Use custom path for config'),
         ]);
     }
 

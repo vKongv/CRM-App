@@ -67,7 +67,7 @@ class Friend
         $this->actor->expectTo($prediction);
     }
 
-    public function leave()
+    public function __destruct()
     {
         foreach ($this->multiSessionModules as $module) {
             if (isset($this->data[$module->_getName()])) {
@@ -76,3 +76,4 @@ class Friend
         }
     }
 }
+ 

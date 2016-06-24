@@ -27,4 +27,5 @@ abstract class Framework extends InnerBrowser
          */
         $this->internalDomains = null;
     }
+
 }

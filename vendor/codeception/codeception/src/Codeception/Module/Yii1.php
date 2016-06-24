@@ -3,7 +3,7 @@ namespace Codeception\Module;
 
 use Codeception\Lib\Framework;
 use Codeception\Exception\ModuleConfigException;
-use Codeception\TestInterface;
+use Codeception\TestCase;
 use Codeception\Lib\Connector\Yii1 as Yii1Connector;
 use Codeception\Util\ReflectionHelper;
 use Yii;
@@ -155,12 +155,12 @@ class Yii1 extends Framework
         ];
     }
 
-    public function _before(TestInterface $test)
+    public function _before(TestCase $test)
     {
         $this->_createClient();
     }
 
-    public function _after(TestInterface $test)
+    public function _after(TestCase $test)
     {
         $_SESSION = [];
         $_GET = [];

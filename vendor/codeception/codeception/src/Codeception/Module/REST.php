@@ -1,11 +1,9 @@
 <?php
 namespace Codeception\Module;
 
-use Codeception\Exception\ModuleException;
-use Codeception\Lib\Interfaces\ConflictsWithModule;
 use Codeception\Module as CodeceptionModule;
-use Codeception\TestInterface;
-use Codeception\Lib\Interfaces\API;
+use Codeception\TestCase;
+use Codeception\Exception\ModuleException as ModuleException;
 use Codeception\Lib\Framework;
 use Codeception\Lib\InnerBrowser;
 use Codeception\Lib\Interfaces\DependsOnModule;
@@ -22,6 +20,14 @@ use Codeception\Util\Soap as XmlUtils;
  * This module can be used either with frameworks or PHPBrowser.
  * If a framework module is connected, the testing will occur in the application directly.
  * Otherwise, a PHPBrowser should be specified as a dependency to send requests and receive responses from a server.
+ *
+ *
+ * ## Status
+ *
+ * * Maintainer: **tiger-seo**, **davert**
+ * * Stability: **stable**
+ * * Contact: codecept@davert.mail.ua
+ * * Contact: tiger.seo@gmail.com
  *
  * ## Configuration
  *
@@ -43,17 +49,14 @@ use Codeception\Util\Soap as XmlUtils;
  * * params - array of sent data
  * * response - last response (string)
  *
+ *
  * ## Parts
  *
  * * Json - actions for validating Json responses (no Xml responses)
  * * Xml - actions for validating XML responses (no Json responses)
  *
- * ## Conflicts
- *
- * Conflicts with SOAP module
- *
  */
-class REST extends CodeceptionModule implements DependsOnModule, PartedModule, API, ConflictsWithModule
+class REST extends CodeceptionModule implements DependsOnModule, PartedModule
 {
     protected $config = [
         'url'           => '',
@@ -83,10 +86,11 @@ EOF;
      */
     protected $connectionModule;
 
+    public $headers = [];
     public $params = [];
     public $response = "";
 
-    public function _before(TestInterface $test)
+    public function _before(TestCase $test)
     {
         $this->client = &$this->connectionModule->client;
         $this->resetVariables();
@@ -103,17 +107,12 @@ EOF;
 
     protected function resetVariables()
     {
+        $this->headers = [];
         $this->params = [];
         $this->response = "";
-        $this->connectionModule->headers = [];
         if ($this->client) {
             $this->client->setServerParameters([]);
         }
-    }
-
-    public function _conflicts()
-    {
-        return 'Codeception\Lib\Interfaces\API';
     }
 
     public function _depends()
@@ -148,14 +147,7 @@ EOF;
     }
 
     /**
-     * Sets HTTP header valid for all next requests. Use `deleteHeader` to unset it
-     *
-     * ```php
-     * <?php
-     * $I->haveHttpHeader('Content-Type', 'application/json');
-     * // all next requests will contain this header
-     * ?>
-     * ```
+     * Sets HTTP header
      *
      * @param $name
      * @param $value
@@ -164,7 +156,7 @@ EOF;
      */
     public function haveHttpHeader($name, $value)
     {
-        $this->connectionModule->haveHttpHeader($name, $value);
+        $this->headers[$name] = $value;
     }
 
     /**
@@ -411,7 +403,7 @@ EOF;
             $values[] = $linkEntry['uri'] . '; ' . $linkEntry['link-param'];
         }
 
-        $this->haveHttpHeader('Link', implode(', ', $values));
+        $this->headers['Link'] = join(', ', $values);
     }
 
     /**
@@ -450,6 +442,18 @@ EOF;
 
     protected function execute($method, $url, $parameters = [], $files = [])
     {
+        $this->debugSection("Request headers", $this->headers);
+
+        foreach ($this->headers as $header => $val) {
+            $header = str_replace('-', '_', strtoupper($header));
+            $this->client->setServerParameter("HTTP_$header", $val);
+
+            // Issue #827 - symfony foundation requires 'CONTENT_TYPE' without HTTP_
+            if ($this->isFunctional && $header === 'CONTENT_TYPE') {
+                $this->client->setServerParameter($header, $val);
+            }
+        }
+
         // allow full url to be requested
         if (strpos($url, '://') === false) {
             $url = $this->config['url'] . $url;
@@ -461,19 +465,14 @@ EOF;
 
         if (is_array($parameters) || $method === 'GET') {
             if (!empty($parameters) && $method === 'GET') {
-                if (strpos($url, '?') !== false) {
-                    $url .= '&';
-                } else {
-                    $url .= '?';
-                }
-                $url .= http_build_query($parameters);
+                $url .= '?' . http_build_query($parameters);
             }
             if ($method == 'GET') {
                 $this->debugSection("Request", "$method $url");
             } else {
                 $this->debugSection("Request", "$method $url " . json_encode($parameters));
             }
-            $this->response = (string)$this->connectionModule->_request($method, $url, $parameters, $files);
+            $this->client->request($method, $url, $parameters, $files);
         } else {
             $requestData = $parameters;
             if (!ctype_print($requestData) && false === mb_detect_encoding($requestData, mb_detect_order(), true)) {
@@ -482,16 +481,23 @@ EOF;
                 $requestData = '[binary-data length:'.strlen($requestData).' md5:'.md5($requestData).']';
             }
             $this->debugSection("Request", "$method $url " . $requestData);
-            $this->response = (string) $this->connectionModule->_request($method, $url, [], $files, [], $parameters);
+            $this->client->request($method, $url, [], $files, [], $parameters);
         }
+        $this->response = (string)$this->connectionModule->_getResponseContent();
         $this->debugSection("Response", $this->response);
+
+        if (count($this->client->getInternalRequest()->getCookies())) {
+            $this->debugSection('Cookies', $this->client->getInternalRequest()->getCookies());
+        }
+        $this->debugSection("Headers", $this->client->getInternalResponse()->getHeaders());
+        $this->debugSection("Status", $this->client->getInternalResponse()->getStatus());
     }
 
     protected function encodeApplicationJson($method, $parameters)
     {
-        if ($method !== 'GET' && array_key_exists('Content-Type', $this->connectionModule->headers)
-            && ($this->connectionModule->headers['Content-Type'] === 'application/json'
-                || preg_match('!^application/.+\+json$!', $this->connectionModule->headers['Content-Type'])
+        if ($method !== 'GET' && array_key_exists('Content-Type', $this->headers)
+            && ($this->headers['Content-Type'] === 'application/json'
+                || preg_match('!^application/.+\+json$!', $this->headers['Content-Type'])
             )
         ) {
             if ($parameters instanceof \JsonSerializable) {
@@ -610,8 +616,7 @@ EOF;
 
     /**
      * Returns data from the current JSON response using [JSONPath](http://goessner.net/articles/JsonPath/) as selector.
-     * JsonPath is XPath equivalent for querying Json structures.
-     * Try your JsonPath expressions [online](http://jsonpath.curiousconcept.com/).
+     * JsonPath is XPath equivalent for querying Json structures. Try your JsonPath expressions [online](http://jsonpath.curiousconcept.com/).
      * Even for a single value an array is returned.
      *
      * This method **require [`flow/jsonpath` > 0.2](https://github.com/FlowCommunications/JSONPath/) library to be installed**.
@@ -681,16 +686,14 @@ EOF;
     {
         $response = $this->connectionModule->_getResponseContent();
         $this->assertGreaterThan(
-            0,
-            (new JsonArray($response))->filterByXPath($xpath)->length,
+            0, (new JsonArray($response))->filterByXPath($xpath)->length,
             "Received JSON did not match the XPath `$xpath`.\nJson Response: \n" . $response
         );
     }
 
     /**
      * Checks if json structure in response matches [JsonPath](http://goessner.net/articles/JsonPath/).
-     * JsonPath is XPath equivalent for querying Json structures.
-     * Try your JsonPath expressions [online](http://jsonpath.curiousconcept.com/).
+     * JsonPath is XPath equivalent for querying Json structures. Try your JsonPath expressions [online](http://jsonpath.curiousconcept.com/).
      * This assertion allows you to check the structure of response json.
      *
      * This method **require [`flow/jsonpath` > 0.2](https://github.com/FlowCommunications/JSONPath/) library to be installed**.
@@ -878,11 +881,7 @@ EOF;
             $jsonArray = $jsonArray->filterByJsonPath($jsonPath);
         }
         $matched = (new JsonType($jsonArray))->matches($jsonType);
-        $this->assertNotEquals(
-            true,
-            $matched,
-            sprintf("Unexpectedly the response matched the %s data type", var_export($jsonType, true))
-        );
+        $this->assertNotEquals(true, $matched, sprintf("Unexpectedly the response matched the %s data type", var_export($jsonType, true)));
     }
 
     /**
@@ -1002,7 +1001,7 @@ EOF;
      * @return string
      * @part xml
      */
-    public function grabAttributeFromXmlElement($cssOrXPath, $attribute)
+    public function grabAttributeFrom($cssOrXPath, $attribute)
     {
         $el = (new XmlStructure($this->connectionModule->_getResponseContent()))->matchElement($cssOrXPath);
         if (!$el->hasAttribute($attribute)) {
@@ -1037,10 +1036,7 @@ EOF;
      */
     public function dontSeeXmlResponseEquals($xml)
     {
-        \PHPUnit_Framework_Assert::assertXmlStringNotEqualsXmlString(
-            $this->connectionModule->_getResponseContent(),
-            $xml
-        );
+        \PHPUnit_Framework_Assert::assertXmlStringNotEqualsXmlString($this->connectionModule->_getResponseContent(), $xml);
     }
 
     /**
@@ -1061,11 +1057,7 @@ EOF;
      */
     public function seeXmlResponseIncludes($xml)
     {
-        $this->assertContains(
-            XmlUtils::toXml($xml)->C14N(),
-            XmlUtils::toXml($this->connectionModule->_getResponseContent())->C14N(),
-            "found in XML Response"
-        );
+        $this->assertContains(XmlUtils::toXml($xml)->C14N(), XmlUtils::toXml($this->connectionModule->_getResponseContent())->C14N(), "found in XML Response");
     }
 
     /**
@@ -1078,11 +1070,7 @@ EOF;
      */
     public function dontSeeXmlResponseIncludes($xml)
     {
-        $this->assertNotContains(
-            XmlUtils::toXml($xml)->C14N(),
-            XmlUtils::toXml($this->connectionModule->_getResponseContent())->C14N(),
-            "found in XML Response"
-        );
+        $this->assertNotContains(XmlUtils::toXml($xml)->C14N(), XmlUtils::toXml($this->connectionModule->_getResponseContent())->C14N(), "found in XML Response");
     }
 
     /**
@@ -1094,11 +1082,7 @@ EOF;
      */
     public function grabDataFromJsonResponse($path)
     {
-        throw new ModuleException(
-            $this,
-            "This action was deprecated in Codeception 2.0.9 and removed in 2.1. "
-            . "Please use `grabDataFromResponseByJsonPath` instead"
-        );
+        throw new ModuleException($this, "This action was deprecated in Codeception 2.0.9 and removed in 2.1. Please use `grabDataFromResponseByJsonPath` instead");
     }
 
     /**
@@ -1116,4 +1100,5 @@ EOF;
     {
         $this->client->followRedirects(true);
     }
+
 }

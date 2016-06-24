@@ -1,6 +1,6 @@
 <?php
 use Codeception\Util\Stub;
-use Codeception\Application;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class BaseCommandRunner extends \PHPUnit_Framework_TestCase
@@ -15,7 +15,7 @@ class BaseCommandRunner extends \PHPUnit_Framework_TestCase
     public $content = "";
     public $output = "";
     public $config = [];
-    public $saved = [];
+    public $log = [];
 
     protected $commandName = 'do:stuff';
 
@@ -39,15 +39,14 @@ class BaseCommandRunner extends \PHPUnit_Framework_TestCase
         $this->output = $commandTester->getDisplay();
     }
 
-    protected function makeCommand($className, $saved = true, $extraMethods = [])
+    protected function makeCommand($className, $saved = true)
     {
         if (!$this->config) {
             $this->config = [];
         }
-
         $self = $this;
-
-        $mockedMethods = [
+        $this->command = Stub::construct(
+            $className, [$this->commandName], [
             'save'            => function ($file, $output) use ($self, $saved) {
                 if (!$saved) {
                     return false;
@@ -55,7 +54,6 @@ class BaseCommandRunner extends \PHPUnit_Framework_TestCase
                 $self->filename = $file;
                 $self->content = $output;
                 $self->log[] = ['filename' => $file, 'content' => $output];
-                $self->saved[$file] = $output;
                 return true;
             },
             'getGlobalConfig' => function () use ($self) {
@@ -75,13 +73,7 @@ class BaseCommandRunner extends \PHPUnit_Framework_TestCase
             'getApplication'  => function () {
                 return new \Codeception\Util\Maybe;
             }
-        ];
-        $mockedMethods = array_merge($mockedMethods, $extraMethods);
-
-        $this->command = Stub::construct(
-            $className,
-            [$this->commandName],
-            $mockedMethods
+        ]
         );
     }
 
@@ -94,4 +86,6 @@ class BaseCommandRunner extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(0, $code, $php);
     }
+
+
 }

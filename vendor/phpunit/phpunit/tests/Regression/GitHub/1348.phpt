@@ -23,12 +23,12 @@ PHPUnit %s by Sebastian Bergmann and contributors.
 STDOUT does not break test result
 E                                                                  2 / 2 (100%)
 
-Time: %s, Memory: %s
+Time: %s, Memory: %sMb
 
 There was 1 error:
 
 1) Issue1348Test::testSTDERR
 PHPUnit_Framework_Exception: STDERR works as usual.
 
-ERRORS!
+FAILURES!
 Tests: 2, Assertions: 1, Errors: 1.

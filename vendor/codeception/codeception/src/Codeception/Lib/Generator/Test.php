@@ -14,7 +14,7 @@ class Test
 <?php
 {{namespace}}
 
-class {{name}}Test extends \Codeception\Test\Unit
+class {{name}}Test extends \Codeception\TestCase\Test
 {
     /**
      * @var \{{actorClass}}

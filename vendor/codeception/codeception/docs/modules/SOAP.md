@@ -1,4 +1,4 @@
-# SOAP
+
 
 
 Module for testing SOAP WSDL web services.
@@ -26,16 +26,10 @@ If you use PHP SoapServer with framework, try to block call to this method in te
 
 ## Public Properties
 
-* xmlRequest - last SOAP request (DOMDocument)
-* xmlResponse - last SOAP response (DOMDocument)
-
-## Conflicts
-
-Conflicts with REST module
+* request - last soap request (DOMDocument)
+* response - last soap response (DOMDocument)
 
 
-
-## Actions
 
 ### dontSeeSoapResponseContainsStructure
  
@@ -142,6 +136,7 @@ Example:
 ``` php
 <?php
 
+$I->seeResponseContains("<user><query>CreateUser<name>Davert</davert></user>");
 $I->seeSoapResponseContainsStructure("<query><name></name></query>");
 ?>
 ```
@@ -222,8 +217,8 @@ You are allowed to execute as much requests as you need inside test.
 Example:
 
 ``` php
-$I->sendSoapRequest('UpdateUser', '<user><id>1</id><name>notdavert</name></user>');
-$I->sendSoapRequest('UpdateUser', \Codeception\Utils\Soap::request()->user
+$I->sendRequest('UpdateUser', '<user><id>1</id><name>notdavert</name></user>');
+$I->sendRequest('UpdateUser', \Codeception\Utils\Soap::request()->user
   ->id->val(1)->parent()
   ->name->val('notdavert');
 ```
@@ -231,4 +226,4 @@ $I->sendSoapRequest('UpdateUser', \Codeception\Utils\Soap::request()->user
  * `param` $request
  * `param` $body
 
-<p>&nbsp;</p><div class="alert alert-warning">Module reference is taken from the source code. <a href="https://github.com/Codeception/Codeception/tree/2.2/src/Codeception/Module/SOAP.php">Help us to improve documentation. Edit module reference</a></div>
+<p>&nbsp;</p><div class="alert alert-warning">Module reference is taken from the source code. <a href="https://github.com/Codeception/Codeception/tree/2.1/src/Codeception/Module/SOAP.php">Help us to improve documentation. Edit module reference</a></div>

@@ -4,7 +4,7 @@ Now that we've written some acceptance tests, functional tests are almost the sa
 
 In simple terms we set `$_REQUEST`, `$_GET` and `$_POST` variables and then we execute application from a test. This may be valuable as functional tests are faster and provide detailed stack traces on failures.
 
-Codeception can connect to different web frameworks which support functional testing: Symfony2, Laravel5, Yii2, Zend Framework and others. You just need to enable desired module in your functional suite config to start.
+Codeception can connect to different web frameworks which support functional testing: Symfony2, Laravel4, Yii2, Zend Framework and others. You just need to enable desired module in your functional suite config to start.
 
 Modules for all of these frameworks share the same interface, and thus your tests are not bound to any one of them. This is a sample functional test.
 
@@ -18,6 +18,7 @@ $I->fillField('Password', 'Davis');
 $I->click('Enter');
 $I->see('Hello, Miles', 'h1');
 // $I->seeEmailIsSent() - special for Symfony2
+?>
 ```
 
 As you see you can use same tests for functional and acceptance testing. 
@@ -44,11 +45,11 @@ Keep your memory clean, avoid memory leaks and clean global and static variables
 You have a functional testing suite in `tests/functional` dir.
 To start you need to include one of the framework modules in suite config file: `tests/functional.suite.yml`. Below we provide simplified instructions for setting up functional tests with the most popular PHP frameworks.
 
-### Symfony
+### Symfony2
 
-To perform Symfony integrations you don't need to install any bundles or do any configuration changes.
-You just need to include the `Symfony` module into your test suite. If you also use Doctrine2, don't forget to include it too.
-To make Doctrine2 module connect using `doctrine` service from Symfony DIC you should specify Symfony module as a dependency for Doctrine2.
+To perform Symfony2 integrations you don't need to install any bundles or do any configuration changes.
+You just need to include the `Symfony2` module into your test suite. If you also use Doctrine2, don't forget to include it too.
+To make Doctrine2 module connect using `doctrine` service from Symfony DIC you should specify Symfony2 module as a dependency for Doctrine2.  
 
 Example of `functional.suite.yml`
 
@@ -56,9 +57,9 @@ Example of `functional.suite.yml`
 class_name: FunctionalTester
 modules:
     enabled: 
-        - Symfony
+        - Symfony2
         - Doctrine2:
-            depends: Symfony # connect to Symfony
+            depends: Symfony2 # connect to Symfony
         - \Helper\Functional
 ```
 
@@ -66,12 +67,12 @@ By default this module will search for App Kernel in the `app` directory.
 
 The module uses the Symfony Profiler to provide additional information and assertions.
 
-[See the full reference](http://codeception.com/docs/modules/Symfony)
+[See the full reference](http://codeception.com/docs/modules/Symfony2)
 
-### Laravel5
+### Laravel
 
-[Laravel5](http://codeception.com/docs/modules/Laravel5)
-module is included and requires no configuration.
+[Laravel4](http://codeception.com/docs/modules/Laravel4) and [Laravel5](http://codeception.com/docs/modules/Laravel5) 
+modules included, and require no configuration.
 
 
 ```yaml
@@ -133,22 +134,20 @@ modules:
 
 [See the full reference](http://codeception.com/docs/modules/ZF1)
 
-### Phalcon
+### Phalcon 1.x
 
-`Phalcon` module requires creating bootstrap file which returns instance of `\Phalcon\Mvc\Application`. To start writing functional tests with Phalcon support you should enable `Phalcon` module and provide path to this bootstrap file:
+`Phalcon1` module requires creating bootstrap file which returns instance of `\Phalcon\Mvc\Application`. To start writing functional tests with Phalcon support you should enable `Phalcon1` module and provide path to this bootstrap file:
 
 ```yaml
 class_name: FunctionalTester
 modules:
     enabled:
-        - Phalcon:
+        - Phalcon1:
             bootstrap: 'app/config/bootstrap.php'
-             cleanup: true
-             savepoints: true
         - \Helper\Functional
 ```
 
-[See the full reference](http://codeception.com/docs/modules/Phalcon)
+[See the full reference](http://codeception.com/docs/modules/Phalcon1)
 
 ## Writing Functional Tests
 
@@ -158,8 +157,9 @@ Therefore we can open a web page with `amOnPage` command.
 
 ```php
 <?php
-$I = new FunctionalTester($scenario);
+$I = new FunctionalTester;
 $I->amOnPage('/login');
+?>
 ```
 
 We can click links to open web pages of application.
@@ -173,6 +173,7 @@ $I->click('Logout', '.nav');
 $I->click('a.logout');
 // click with strict locator
 $I->click(['class' => 'logout']);
+?>
 ```
 
 We can submit forms as well:
@@ -184,6 +185,7 @@ $I->submitForm('form#login', ['name' => 'john', 'password' => '123456']);
 $I->fillField('#login input[name=name]', 'john');
 $I->fillField('#login input[name=password]', '123456');
 $I->click('Submit', '#login');
+?>
 ```
 
 And do assertions:
@@ -193,9 +195,11 @@ And do assertions:
 $I->see('Welcome, john');
 $I->see('Logged in successfully', '.notice');
 $I->seeCurrentUrlEquals('/profile/john');
+?>
 ```
 
-Framework modules also contain additional methods to access framework internals. For instance, `Laravel5`, `Phalcon`, and `Yii2` modules have `seeRecord` method which uses ActiveRecord layer to check that record exists in database.
+Framework modules also contain additional methods to access framework internals. For instance, `Laravel4`, `Phalcon1`, and `Yii2` modules have `seeRecord` method which uses ActiveRecord layer to check that record exists in database.
+`Laravel4` module also contains methods to do additional session checks. You may find `seeSessionHasErrors` useful when you test form validations.
 
 Take a look at the complete reference for module you are using. Most of its methods are common for all modules but some of them are unique.
 
@@ -209,10 +213,11 @@ class Functional extends \Codeception\Module
 {
     function doSomethingWithMyService()
     {
-        $service = $this->getModule('Symfony')->grabServiceFromContainer('myservice');
+        $service = $this->getModule('Symfony2')->grabServiceFromContainer('myservice');
         $service->doSomething();
     }
 }
+?>
 ```
 
 Check also all available *Public Properties* of used modules to get full access to its data. 

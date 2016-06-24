@@ -3,6 +3,11 @@
 
 class DependentCest {
 
+    public function firstOne(OrderGuy $I)
+    {
+        $I->failNow();
+    }
+
     /**
      * @depends firstOne
      */
@@ -11,8 +16,4 @@ class DependentCest {
 
     }
 
-    public function firstOne(OrderGuy $I)
-    {
-        $I->failNow();
-    }
 }

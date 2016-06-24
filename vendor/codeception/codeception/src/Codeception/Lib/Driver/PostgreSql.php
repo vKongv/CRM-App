@@ -30,8 +30,7 @@ class PostgreSql extends Db
                 continue;
             }
 
-            // Ignore $$ inside SQL standard string syntax such as in INSERT statements.
-            if (!preg_match('/\'.*\$\$.*\'/', $sqlLine)) {
+            if (!preg_match('/\'.*\$\$.*\'/', $sqlLine)) { // Ignore $$ inside SQL standard string syntax such as in INSERT statements.
                 $pos = strpos($sqlLine, '$$');
                 if (($pos !== false) && ($pos >= 0)) {
                     $dollarsOpen = !$dollarsOpen;
@@ -55,23 +54,16 @@ class PostgreSql extends Db
     public function cleanup()
     {
         $tables = $this->dbh
-            ->query(
-                "SELECT 'DROP TABLE IF EXISTS \"' || tablename || '\" cascade;' "
-                . "FROM pg_tables WHERE schemaname = 'public';"
-            )
+            ->query("SELECT 'DROP TABLE IF EXISTS \"' || tablename || '\" cascade;' FROM pg_tables WHERE schemaname = 'public';")
             ->fetchAll();
 
         $sequences = $this->dbh
-            ->query(
-                "SELECT 'DROP SEQUENCE IF EXISTS \"' || relname || '\" cascade;' FROM pg_class WHERE relkind = 'S';"
-            )
+            ->query("SELECT 'DROP SEQUENCE IF EXISTS \"' || relname || '\" cascade;' FROM pg_class WHERE relkind = 'S';")
             ->fetchAll();
 
-        // @codingStandardsIgnoreStart
         $types = $this->dbh
             ->query("SELECT 'DROP TYPE IF EXISTS \"' || t.typname || '\" cascade;' FROM pg_catalog.pg_type t LEFT JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace WHERE (t.typrelid = 0 OR (SELECT c.relkind = 'c' FROM pg_catalog.pg_class c WHERE c.oid = t.typrelid)) AND NOT EXISTS(SELECT 1 FROM pg_catalog.pg_type el WHERE el.oid = t.typelem AND el.typarray = t.oid) AND n.nspname <> 'pg_catalog' AND n.nspname <> 'information_schema' AND pg_catalog.pg_type_is_visible(t.oid);")
             ->fetchAll();
-        // @codingStandardsIgnoreEnd
 
         $drops = array_merge($tables, $sequences, $types);
         if ($drops) {
@@ -125,10 +117,7 @@ class PostgreSql extends Db
 
     public function lastInsertId($table)
     {
-        /**
-         * We make an assumption that the sequence name for this table
-         * is based on how postgres names sequences for SERIAL columns
-         */
+        /*We make an assumption that the sequence name for this table is based on how postgres names sequences for SERIAL columns */
         $sequenceName = $this->getQuotedName($table . '_id_seq');
         return $this->getDbh()->lastInsertId($sequenceName);
     }

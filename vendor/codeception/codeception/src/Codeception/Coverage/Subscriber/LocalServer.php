@@ -42,7 +42,7 @@ class LocalServer extends SuiteSubscriber
      */
     protected $module;
 
-    public static $events = [
+    static $events = [
         Events::SUITE_BEFORE => 'beforeSuite',
         Events::TEST_BEFORE  => 'beforeTest',
         Events::STEP_AFTER   => 'afterStep',
@@ -87,6 +87,7 @@ class LocalServer extends SuiteSubscriber
             return;
         }
         $this->startCoverageCollection($e->getTest()->getName());
+
     }
 
     public function afterStep(StepEvent $e)

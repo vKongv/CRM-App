@@ -1,31 +1,32 @@
 <?php
 use Codeception\Lib\Parser;
+use \Codeception\Util\Stub;
 
 /**
  * @group core
  * Class ParserTest
  */
-class ParserTest extends \Codeception\Test\Unit
+class ParserTest extends \Codeception\TestCase\Test
 {
     /**
      * @var Parser
      */
     protected $parser;
-
     /**
-     * @var \Codeception\Scenario
+     * @var \CodeGuy
      */
-    protected $scenario;
-    
-    protected $testMetadata;
+    protected $codeGuy;
 
     protected function _before()
     {
-        $cept = new \Codeception\Test\Cept('demo','DemoCept.php');
+        $this->scenario = new \Codeception\Scenario(Stub::make('Codeception\TestCase\Cept'));
+        $this->parser = new Parser($this->scenario);
+        Codeception\Configuration::append(['settings' => ['lint' => true]]);
+    }
 
-        $this->testMetadata = $cept->getMetadata();
-        $this->scenario = new Codeception\Scenario($cept);
-        $this->parser = new Parser($this->scenario, $this->testMetadata);
+    protected function _after()
+    {
+        Codeception\Configuration::append(['settings' => ['lint' => false]]);
     }
 
     public function testParsingFeature()
@@ -57,8 +58,8 @@ class ParserTest extends \Codeception\Test\Unit
 EOF;
 
         $this->parser->parseScenarioOptions($code);
-        $this->assertContains('davert', $this->testMetadata->getGroups());
-        $this->assertContains('windows', $this->testMetadata->getEnv());
+        $this->assertContains('davert', $this->scenario->getGroups());
+        $this->assertContains('windows', $this->scenario->getEnv());
 
     }
 
@@ -71,7 +72,7 @@ EOF;
  */
 EOF;
         $this->parser->parseScenarioOptions($code);
-        $this->assertTrue($this->testMetadata->isBlocked());
+        $this->assertTrue($this->scenario->isBlocked());
     }
 
     public function testFeatureCommented()
@@ -83,20 +84,32 @@ EOF;
         $code = "<?php\n /*\n \\\$I->wantTo('run this test'); \n */";
         $this->parser->parseFeature($code);
         $this->assertNull($this->scenario->getFeature());
+
     }
 
     public function testScenarioSkipOptionsHandled()
     {
+        $this->setExpectedException('PHPUnit_Framework_SkippedTestError', 'pass along');
         $code = "<?php\n // @skip pass along";
         $this->parser->parseScenarioOptions($code);
-        $this->assertTrue($this->testMetadata->isBlocked());
+        $this->assertTrue($this->scenario->isBlocked());
+        $this->scenario->stopIfBlocked();
+    }
+
+    public function testScenarioGroup()
+    {
+        $code = "<?php\n \$scenario->group('firefox'); ";
+        $this->parser->parseScenarioOptions($code);
+        $this->assertContains('firefox', $this->scenario->getGroups());
     }
 
     public function testScenarioIncompleteOptionHandled()
     {
+        $this->setExpectedException('PHPUnit_Framework_IncompleteTestError', 'not ready yet');
         $code = "<?php\n // @incomplete not ready yet";
         $this->parser->parseScenarioOptions($code);
-        $this->assertTrue($this->testMetadata->isBlocked());
+        $this->assertTrue($this->scenario->isBlocked());
+        $this->scenario->stopIfBlocked();
     }
 
     public function testSteps()
@@ -117,6 +130,7 @@ EOF;
         $this->assertContains("jon does", $text);
         $this->assertContains("I have friend", $text);
         $this->assertContains("back to me", $text);
+
     }
 
     public function testParseFile()
@@ -132,15 +146,6 @@ EOF;
         }
         $classes = Parser::getClassesFromFile(codecept_data_dir('php55Test'));
         $this->assertEquals(['php55Test'], $classes);
-    }
-
-    public function testParseFileWithAnonymousClass()
-    {
-        if (version_compare(PHP_VERSION, '7.0.0', '<')) {
-            $this->markTestSkipped('only for php 7');
-        }
-        $classes = Parser::getClassesFromFile(codecept_data_dir('php70Test'));
-        $this->assertEquals(['php70Test'], $classes);
     }
     
     /*

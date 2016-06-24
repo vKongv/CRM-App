@@ -66,9 +66,9 @@ class redirect_interval {
     }
 }
 
-class redirect_meta_refresh {
+class redirect_self {
     function GET() {
-        include __DIR__.'/view/redirect_meta_refresh.php';
+        include __DIR__.'/view/redirect_self.php';
     }
 }
 

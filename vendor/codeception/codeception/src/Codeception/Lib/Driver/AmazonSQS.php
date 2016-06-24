@@ -93,6 +93,7 @@ class AmazonSQS implements Queue
             'QueueUrl' => $this->getQueueURL($queue),
             'AttributeNames' => ['ApproximateNumberOfMessages'],
         ])->get('Attributes')['ApproximateNumberOfMessages'];
+
     }
 
     public function clearQueue($queue)

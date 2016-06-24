@@ -42,7 +42,7 @@ class ProgressBar
     private $stepWidth;
     private $percent = 0.0;
     private $formatLineCount;
-    private $messages = array();
+    private $messages;
     private $overwrite = true;
 
     private static $formatters;
@@ -140,16 +140,6 @@ class ProgressBar
         return isset(self::$formats[$name]) ? self::$formats[$name] : null;
     }
 
-    /**
-     * Associates a text with a named placeholder.
-     *
-     * The text is displayed when the progress bar is rendered but only
-     * when the corresponding placeholder is part of the custom format line
-     * (by wrapping the name with %).
-     *
-     * @param string $message The text to associate with the placeholder
-     * @param string $name    The name of the placeholder
-     */
     public function setMessage($message, $name = 'message')
     {
         $this->messages[$name] = $message;

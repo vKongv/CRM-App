@@ -14,12 +14,12 @@ PHPUnit %s by Sebastian Bergmann and contributors.
 
 E                                                                   1 / 1 (100%)
 
-Time: %s, Memory: %s
+Time: %s, Memory: %sMb
 
 There was 1 error:
 
 1) FatalTest::testFatalError
 %s
 
-ERRORS!
+FAILURES!
 Tests: 1, Assertions: 0, Errors: 1.

@@ -1,7 +1,7 @@
-<?php
+<?php 
 namespace Codeception\Lib;
 
-class DiTest extends \Codeception\Test\Unit
+class DiTest extends \Codeception\TestCase\Test
 {
     /**
      * @var Di
@@ -21,9 +21,7 @@ class DiTest extends \Codeception\Test\Unit
     public function testFailDependenciesCyclic()
     {
         require_once codecept_data_dir().'FailDependenciesCyclic.php';
-        $this->injectionShouldFail(
-            'Failed to resolve cyclic dependencies for class \'FailDependenciesCyclic\IncorrectDependenciesClass\''
-        );
+        $this->injectionShouldFail('Failed to resolve cyclic dependencies for class \'FailDependenciesCyclic\IncorrectDependenciesClass\'');
         $this->di->instantiate('FailDependenciesCyclic\IncorrectDependenciesClass');
     }
 
@@ -47,4 +45,4 @@ class DiTest extends \Codeception\Test\Unit
         $this->injectionShouldFail('Parameter \'required\' must have default value');
         $this->di->instantiate('FailDependenciesPrimitiveParam\IncorrectDependenciesClass');
     }
-}
+} 

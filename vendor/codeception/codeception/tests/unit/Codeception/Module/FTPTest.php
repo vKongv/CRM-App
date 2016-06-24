@@ -39,82 +39,69 @@ class FTPTest extends \PHPUnit_Framework_TestCase
      */
     public function flow()
     {
-        // Check root directory
-        $this->assertEquals('/', $this->module->grabDirectory());
+        $this->assertEquals('/', $this->module->grabDirectory());                           // Check root directory
 
-        // Create directory
-        $this->module->makeDir('TESTING');
-        // Move to new directory
-        $this->module->amInPath('TESTING');
-        // Verify current directory
-        $this->assertEquals('/TESTING', $this->module->grabDirectory());
+        $this->module->makeDir('TESTING');                                                  // Create directory
+        $this->module->amInPath('TESTING');                                                 // Move to new directory
+        $this->assertEquals('/TESTING', $this->module->grabDirectory());                    // Verify currency directory
 
         $files = $this->module->grabFileList();
-        // Create files on server
-        $this->module->writeToFile('test_ftp_123.txt', 'some data added here');
-        $this->module->writeToFile('test_ftp_567.txt', 'some data added here');
-        $this->module->writeToFile('test_ftp_678.txt', 'some data added here');
+        $this->module->writeToFile('test_ftp_123.txt', 'some data added here');             // Create file on server
+        $this->module->writeToFile('test_ftp_567.txt', 'some data added here');             // Create file on server
+        $this->module->writeToFile('test_ftp_678.txt', 'some data added here');             // Create file on server
 
-        // Grab file list
-        $files = $this->module->grabFileList();
-        // Verify files are listed
-        $this->assertContains('test_ftp_123.txt', $files);
-        $this->assertContains('test_ftp_567.txt', $files);
-        $this->assertContains('test_ftp_678.txt', $files);
+        $files = $this->module->grabFileList();                                             // Grab file list
+        $this->assertContains('test_ftp_123.txt', $files);                                  // Verify file is listed
+        $this->assertContains('test_ftp_567.txt', $files);                                  // Verify file is listed
+        $this->assertContains('test_ftp_678.txt', $files);                                  // Verify file is listed
 
-        $this->module->seeFileFound('test_ftp_123.txt');
-        $this->module->dontSeeFileFound('test_ftp_321.txt');
-        $this->module->seeFileFoundMatches('/^test_ftp_([0-9]{3}).txt$/');
-        $this->module->dontSeeFileFoundMatches('/^test_([0-9]{3})_ftp.txt$/');
+        $this->module->seeFileFound('test_ftp_123.txt');                                    // I seeFileFound test
+        $this->module->dontSeeFileFound('test_ftp_321.txt');                                // I dontSeeFileFound test
+        $this->module->seeFileFoundMatches('/^test_ftp_([0-9]{3}).txt$/');                  // I seeFileFoundMatches test
+        $this->module->dontSeeFileFoundMatches('/^test_([0-9]{3})_ftp.txt$/');              // I dontSeeFileFoundMatches test
 
-        $this->assertGreaterThan(0, $this->module->grabFileCount());
-        $this->assertGreaterThan(0, $this->module->grabFileSize('test_ftp_678.txt'));
-        $this->assertGreaterThan(0, $this->module->grabFileModified('test_ftp_678.txt'));
+        $this->assertGreaterThan(0, $this->module->grabFileCount());                        // Grab the file count
+        $this->assertGreaterThan(0, $this->module->grabFileSize('test_ftp_678.txt'));       // Grab the file size
+        $this->assertGreaterThan(0, $this->module->grabFileModified('test_ftp_678.txt'));   // Grab the file modified time
 
-        $this->module->openFile('test_ftp_567.txt');
-        $this->module->deleteThisFile();
-        $this->module->dontSeeFileFound('test_ftp_567.txt');
+        $this->module->openFile('test_ftp_567.txt');                                        // Open file (download local copy)
+        $this->module->deleteThisFile();                                                    // Delete open file
+        $this->module->dontSeeFileFound('test_ftp_567.txt');                                // I dontSeeFileFound test
 
-        // Open file (download local copy)
-        $this->module->openFile('test_ftp_123.txt');
-        $this->module->seeInThisFile('data');
+        $this->module->openFile('test_ftp_123.txt');                                        // Open file (download local copy)
+        $this->module->seeInThisFile('data');                                               // Look in file to see if contains 'data'
 
-        $this->module->dontSeeInThisFile('banana');
-        $this->module->seeFileContentsEqual('some data added here');
+        $this->module->dontSeeInThisFile('banana');                                         // Look in file, don't see 'banana'
+        $this->module->seeFileContentsEqual('some data added here');                        // Look in file to see if only contains 'some data added here'
 
-        $this->module->renameFile('test_ftp_678.txt', 'test_ftp_987.txt');
+        $this->module->renameFile('test_ftp_678.txt', 'test_ftp_987.txt');                  // Rename file
 
-        $files = $this->module->grabFileList();
-        // Verify old file is not listed
-        $this->assertNotContains('test_ftp_678.txt', $files);
-        // Verify renamed file is listed
-        $this->assertContains('test_ftp_987.txt', $files);
+        $files = $this->module->grabFileList();                                             // Grab file list
+        $this->assertNotContains('test_ftp_678.txt', $files);                               // Verify old file is not listed
+        $this->assertContains('test_ftp_987.txt', $files);                                  // Verify renamed file is listed
 
-        $this->module->deleteFile('test_ftp_123.txt');
+        $this->module->deleteFile('test_ftp_123.txt');                                      // Delete file on server
 
-        $files = $this->module->grabFileList();
-        // Verify deleted file is not listed
-        $this->assertNotContains('test_ftp_123.txt', $files);
+        $files = $this->module->grabFileList();                                             // Grab file list
+        $this->assertNotContains('test_ftp_123.txt', $files);                               // Verify old file is not listed
 
-        // Move to root directory
-        $this->module->amInPath('/');
+        $this->module->amInPath('/');                                                       // Move to root directory
 
-        $this->assertEquals('/', $this->module->grabDirectory());
+        $this->assertEquals('/', $this->module->grabDirectory());                           // Check root directory
 
-        $this->module->renameDir('TESTING', 'TESTING_NEW');
+        $this->module->renameDir('TESTING', 'TESTING_NEW');                                 // Rename directory
 
-        // Remove directory (with contents)
-        $this->module->deleteDir('TESTING_NEW');
+        $this->module->deleteDir('TESTING_NEW');                                            // Remove directory (with contents)
 
         // Test Clearing the Directory
-        $this->module->makeDir('TESTING');
-        $this->module->amInPath('TESTING');
-        $this->module->writeToFile('test_ftp_123.txt', 'some data added here');
-        $this->module->amInPath('/');
-        $this->assertGreaterThan(0, $this->module->grabFileCount('TESTING'));
-        $this->module->cleanDir('TESTING');
-        $this->assertEquals(0, $this->module->grabFileCount('TESTING'));
-        $this->module->deleteDir('TESTING');
+        $this->module->makeDir('TESTING');                                                  // Create directory
+        $this->module->amInPath('TESTING');                                                 // Move to new directory
+        $this->module->writeToFile('test_ftp_123.txt', 'some data added here');             // Create file on server
+        $this->module->amInPath('/');                                                       // Move to root directory
+        $this->assertGreaterThan(0, $this->module->grabFileCount('TESTING'));               // Verify directory has contents
+        $this->module->cleanDir('TESTING');                                                 // Clear directory
+        $this->assertEquals(0, $this->module->grabFileCount('TESTING'));                    // Verify directory has no contents after clearDir
+        $this->module->deleteDir('TESTING');                                                // Remove directory (with no contents)
     }
 
     public function tearDown()
