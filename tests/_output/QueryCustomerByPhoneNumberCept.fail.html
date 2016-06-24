@@ -1,7 +1,31 @@
+<!DOCTYPE html>
 <html>
-<head><title>404 Not Found</title></head>
-<body bgcolor="white">
-<center><h1>404 Not Found</h1></center>
-<hr><center>nginx</center>
-</body>
+<head>
+<title>CRM</title>
+</head>
+<body>
+<form id="add-customer-form" action="/CRM-App/web/index.php/customers/add" method="post">
+<input type="hidden" name="_csrf" value="cVJRdkIxa1VIGwgPNghbDBcVOScVBgAtNWp8QCd9XhNIfxwiO0AqJA==">
+<div class="form-group field-customerrecord-name required">
+<label class="control-label" for="customerrecord-name">Name</label>
+<input type="text" id="customerrecord-name" class="form-control" name="CustomerRecord[name]" value="Marcella Langworth">
+
+<div class="help-block"></div>
+</div><div class="form-group field-customerrecord-birth_date has-error">
+<label class="control-label" for="customerrecord-birth_date">Birth Date</label>
+<input type="text" id="customerrecord-birth_date" class="form-control" name="CustomerRecord[birth_date]" value="1988-07-20">
+
+<div class="help-block">The format of Birth Date is invalid.</div>
+</div><div class="form-group field-customerrecord-notes">
+<label class="control-label" for="customerrecord-notes">Notes</label>
+<input type="text" id="customerrecord-notes" class="form-control" name="CustomerRecord[notes]" value="Quod recusandae minus consectetur quia eos reprehenderit.">
+
+<div class="help-block"></div>
+</div><div class="form-group field-phonerecord-number required">
+<label class="control-label" for="phonerecord-number">Number</label>
+<input type="text" id="phonerecord-number" class="form-control" name="PhoneRecord[number]" value="+1 (609) 956-4917">
+
+<div class="help-block"></div>
+</div>
+<button type="submit" class="btn btn-primary">Submit</button></form></body>
 </html>

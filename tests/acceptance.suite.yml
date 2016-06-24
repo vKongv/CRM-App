@@ -8,5 +8,5 @@ class_name: AcceptanceTester
 modules:
     enabled:
         - PhpBrowser:
-            url: http://localhost/crmapp2/web
+            url: http://localhost/CRM-App/web/index.php
         - \Helper\Acceptance

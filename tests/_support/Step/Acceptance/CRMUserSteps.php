@@ -5,7 +5,7 @@ class CRMUserSteps extends \AcceptanceTester
 {
   function amInQueryCustomerUi(){
     $I = $this;
-    $I->amOnPage('/customers/query');
+    $I->amOnPage('http://localhost/CRM-App/web/index.php/customers/query');
   }
 
   function fillInPhoneFieldWithDataFrom($customer_data){
