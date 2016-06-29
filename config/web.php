@@ -1,6 +1,6 @@
 <?php
 return [
-  'id' => 'crmapp2',
+  'id' => 'crmapp23',
   'basePath' => realpath(__DIR__ . '/../'),
   'components' => [
     'db' => require(__DIR__ . '/db.php'),
